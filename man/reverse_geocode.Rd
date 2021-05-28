@@ -20,7 +20,7 @@ within which a matching address should be searched. Default value is 0.}
 }
 \value{
 A single row \code{data.frame} of the reverse-geocoded address with
-  columns /code{street}, /code{city}, and /code{zip}
+columns /code{street}, /code{city}, and /code{zip}
 }
 \description{
 Determine addresses from lat/long coordinates using the City of Dallas's

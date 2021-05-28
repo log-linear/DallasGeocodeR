@@ -26,6 +26,7 @@
 #'
 #' geocode_addresses(addresses$street, addresses$city, addresses$zip)
 #' geocode_addresses(addresses$street)
+#' @export
 geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 
   batch_size <- 1000
@@ -57,7 +58,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 
   # Create JSON payload
   nested_list <- list(
-    records = lapply(id,
+    records = lapply(seq(id),
                      function(i) list(attributes = list(OBJECTID = id[[i]],
                                                         Street = street[[i]],
                                                         City = city[[i]],
@@ -85,7 +86,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
   locations <- response$locations
 
   attributes <- lapply(
-    id,
+    seq(id),
     function(i) list(
       id = id[[i]],
       latitude = locations[[i]]$attributes$X,
@@ -119,6 +120,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #'   within which a matching address should be searched. Default value is 0.
 #' @return A single row \code{data.frame} of the reverse-geocoded address with
 #'   columns /code{street}, /code{city}, and /code{zip}
+#' @export
 reverse_geocode <- function(latitude, longitude, intersection = F,
                             distance = 0) {
 
