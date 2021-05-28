@@ -1,13 +1,19 @@
 
-geocode_addresses <- function(street, city, zip) {
+geocode_addresses <- function(street, city = NULL, zip = NULL) {
 
   batch_size <- 1000  # Hardcoded server limit
   geocoder_url <- "https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses"
-  if (length(street) > batch_size) {
+
+  n_addresses <- length(street)
+  if (n_addresses > batch_size) {
     stop(paste("geocode_addresses can only process a maximum",
                batch_size,
                "addresses at once."))
   }
+
+  # Set city/zip to empty strings if not provided
+  if (is.null(city)) city <- rep("", n_addresses)
+  if (is.null(zip)) zip <- rep("", n_addresses)
 
   # Handle any missing values
   street <- stringr::str_replace_na(street, "")
@@ -71,3 +77,4 @@ addresses <- data.frame(
 )
 
 test <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
+test <- geocode_addresses(addresses$street)
