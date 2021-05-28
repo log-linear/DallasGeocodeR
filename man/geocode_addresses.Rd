@@ -18,7 +18,8 @@ defaults to \code{seq(street)} if not provided. If providing this
 argument, note that each integer in the vector must be unique.}
 }
 \value{
-A \code{data.frame} of geocoded address results.
+A \code{data.frame} of geocoded address results. Includes original
+  address alongside generated lat/long coordinates and other metrics
 }
 \description{
 Calculate lat/long coordinates for a given set of addresses using the City of
