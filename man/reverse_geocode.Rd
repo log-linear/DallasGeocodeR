@@ -2,7 +2,7 @@
 % Please edit documentation in R/geocoders.R
 \name{reverse_geocode}
 \alias{reverse_geocode}
-\title{Reverse Geocode addresses using the City of Dallas's public geocoding service}
+\title{Convert lat/long coordinates to City of Dallas addresses}
 \usage{
 reverse_geocode(latitude, longitude, intersection = F, distance = 0)
 }
@@ -20,12 +20,13 @@ within which a matching address should be searched. Default value is 0.}
 }
 \value{
 A single row \code{data.frame} of the reverse-geocoded address with
-columns /code{street}, /code{city}, and /code{zip}
+columns \code{street}, \code{city}, and \code{zip}
 }
 \description{
-Determine addresses from lat/long coordinates using the City of Dallas's
-public geocoding service. See the
+Convert lat/long coordinates to City of Dallas addresses using the
 \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-DallasStreetsLocator/GeocodeServer}{ArcGIS REST API endpoint} for additional
-details.
+DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
+reverse geocoding service}. See the \href{https://gis.dallascityhall.com/
+wwwgis/sdk/rest/index.html#/Reverse_Geocode/02ss00000030000000/}{Reverse
+Geocode documentation page} for additional details.
 }

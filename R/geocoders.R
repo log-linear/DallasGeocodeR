@@ -1,13 +1,14 @@
 
-#' Geocode addresses using the City of Dallas's public geocoding service
+#' Convert City of Dallas addresses to lat/long coordinates
 #'
-#' Calculate lat/long coordinates for a given set of addresses using the City of
-#' Dallas's public geocoding service. Note that this service can geocode a
-#' \strong{maximum 1000 addresses} per request. Calling this function on more
-#' than 1000 addresses will return an error. See the
+#' Calculate lat/long coordinates for a given set of addresses using the
 #' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-#' DallasStreetsLocator/GeocodeServer}{ArcGIS REST API endpoint} for additional
-#' details.
+#' DallasStreetsLocator/GeocodeServer/geocodeAddresses}{City of Dallas's public
+#' geocoding service}. Note that this service can geocode a \strong{maximum 1000
+#' addresses} per request. Calling this function on more than 1000 addresses
+#' will return an error. See the \href{https://gis.dallascityhall.com/wwwgis/
+#' sdk/rest/index.html#/Geocode_Addresses/02ss00000040000000/}{Geocode Addresses
+#' documentation page} for additional details.
 #'
 #' @param street character vector of street addresses.
 #' @param city optional, character vector of city names.
@@ -44,14 +45,14 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
   }
 
   # Input validation
-  street <- stringr::str_replace_na(street, "")
+  street[is.na(street)] <- ""
 
   # Handle optional args if not provided
   if (is.null(city)) city <- rep("", n_addresses)
-  else city <- stringr::str_replace_na(city, "")
+  else city[is.na(city)] <- ""
 
   if (is.null(zip)) zip <- rep("", n_addresses)
-  else zip <- stringr::str_replace_na(zip, "")
+  else zip[is.na(zip)] <- ""
 
   if (is.null(id)) id <- seq(street)
   else id <- as.numeric(id)
@@ -99,17 +100,18 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
   )
 
   # Convert nested list attributes into dataframe
-  results <- data.table::rbindlist(attributes)
+  results <- data.frame(do.call(rbind.data.frame, attributes))
   return(results)
 }
 
-#' Reverse Geocode addresses using the City of Dallas's public geocoding service
+#' Convert lat/long coordinates to City of Dallas addresses
 #'
-#' Determine addresses from lat/long coordinates using the City of Dallas's
-#' public geocoding service. See the
+#' Convert lat/long coordinates to City of Dallas addresses using the
 #' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-#' DallasStreetsLocator/GeocodeServer}{ArcGIS REST API endpoint} for additional
-#' details.
+#' DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
+#' reverse geocoding service}. See the \href{https://gis.dallascityhall.com/
+#' wwwgis/sdk/rest/index.html#/Reverse_Geocode/02ss00000030000000/}{Reverse
+#' Geocode documentation page} for additional details.
 #'
 #' @param latitude scalar, latitude coordinate to reverse geocode,
 #' @param longitude scalar, longitude coordinate to reverse geocode
@@ -119,7 +121,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #' @param distance scalar, maximum distance in meters from coordinates
 #'   within which a matching address should be searched. Default value is 0.
 #' @return A single row \code{data.frame} of the reverse-geocoded address with
-#'   columns /code{street}, /code{city}, and /code{zip}
+#'   columns \code{street}, \code{city}, and \code{zip}
 #' @export
 reverse_geocode <- function(latitude, longitude, intersection = F,
                             distance = 0) {

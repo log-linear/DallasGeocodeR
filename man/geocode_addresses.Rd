@@ -2,7 +2,7 @@
 % Please edit documentation in R/geocoders.R
 \name{geocode_addresses}
 \alias{geocode_addresses}
-\title{Geocode addresses using the City of Dallas's public geocoding service}
+\title{Convert City of Dallas addresses to lat/long coordinates}
 \usage{
 geocode_addresses(street, city = NULL, zip = NULL, id = NULL)
 }
@@ -22,13 +22,14 @@ A \code{data.frame} of geocoded address results. Includes original
 address alongside generated lat/long coordinates.
 }
 \description{
-Calculate lat/long coordinates for a given set of addresses using the City of
-Dallas's public geocoding service. Note that this service can geocode a
-\strong{maximum 1000 addresses} per request. Calling this function on more
-than 1000 addresses will return an error. See the
+Calculate lat/long coordinates for a given set of addresses using the
 \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-DallasStreetsLocator/GeocodeServer}{ArcGIS REST API endpoint} for additional
-details.
+DallasStreetsLocator/GeocodeServer/geocodeAddresses}{City of Dallas's public
+geocoding service}. Note that this service can geocode a \strong{maximum 1000
+addresses} per request. Calling this function on more than 1000 addresses
+will return an error. See the \href{https://gis.dallascityhall.com/wwwgis/
+sdk/rest/index.html#/Geocode_Addresses/02ss00000040000000/}{Geocode Addresses
+documentation page} for additional details.
 }
 \examples{
 addresses <- data.frame(
