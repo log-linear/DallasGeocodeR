@@ -15,7 +15,8 @@ geocode_addresses(street, city = NULL, zip = NULL, id = NULL)
 
 \item{id}{optional, numeric vector uniquely identifying each address,
 defaults to \code{seq(street)} if not provided. If providing this
-argument, note that each integer in the vector must be unique.}
+argument (e.g., to join onto an existing dataframe), note that each
+integer in the vector must be unique.}
 }
 \value{
 A \code{data.frame} of geocoded address results. Includes original
@@ -40,4 +41,5 @@ addresses <- data.frame(
 
 geocode_addresses(addresses$street, addresses$city, addresses$zip)
 geocode_addresses(addresses$street)
+
 }

@@ -43,4 +43,5 @@ addresses <- data.frame(
 
 coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
 reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
+
 }

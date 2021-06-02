@@ -4,11 +4,13 @@
 
 DallasGeocodeR is an R package providing convenient wrapper functions for the 
 [City of Dallas's DallasStreetsLocator service](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer),
-a REST API service powered by ArcGIS. Currently, this package provides R 
-bindings for the following operations:
+a REST API service powered by ArcGIS. 
+
+Currently, this package provides R bindings for the following operations:
 
 - [geocodeAddresses](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-geocode-addresses.htm)
 - [reverseGeocode](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-reverse-geocode.htm)
+- [findAddressCandidates](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)
 
 ## Installation
 
@@ -53,4 +55,15 @@ library(DallasGeocodeR)
 reverse_geocode(2516412.847819, 6986517.2125469996)
 #>            street   city   zip latitude longitude
 #> 1 8525 GARLAND RD DALLAS 75218  2516413   6986517
+```
+
+### Finding address candidates
+
+```R
+library(DallasGeocodeR)
+
+find_address_candidates("1500 Marilla St")
+#> candidate                        address latitude longitude score
+#> 2          1 1500 MARILLA ST, DALLAS, 75201  2491525   6969612   100
+#> 21         2 1501 MARILLA ST, DALLAS, 75201  2491514   6969650    79
 ```
