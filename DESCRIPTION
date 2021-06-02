@@ -1,13 +1,13 @@
 Package: DallasGeocodeR
-Title: Geocoder Using the City of Dallas's Public Geocoding Service
+Title: R Wrappers for the City of Dallas's Public Geocoding Service
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Victor",
+           family = "Faner",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
+           email = "victor.faner@dallascityhall.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: A simple R interface for the City of Dallas's public geocoding service.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8

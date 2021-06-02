@@ -109,7 +109,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #' Convert lat/long coordinates to City of Dallas addresses using the
 #' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
 #' DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
-#' reverse geocoding service}. See the \href{https://gis.dallascityhall.com/
+#' reverse geocoding service}. Note that this service can only convert a single
+#' set of coordinates at a time. See the \href{https://gis.dallascityhall.com/
 #' wwwgis/sdk/rest/index.html#/Reverse_Geocode/02ss00000030000000/}{Reverse
 #' Geocode documentation page} for additional details.
 #'
@@ -122,6 +123,17 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #'   within which a matching address should be searched. Default value is 0.
 #' @return A single row \code{data.frame} of the reverse-geocoded address with
 #'   columns \code{street}, \code{city}, and \code{zip}
+#' @examples
+#' reverse_geocode(2516412.847819, 6986517.2125469996)
+#'
+#' addresses <- data.frame(
+#'   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
+#'   city = c('Dallas', 'Dallas', 'Dallas'),
+#'   zip = c('75218', '75201', '75210')
+#' )
+#'
+#' coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
+#' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #' @export
 reverse_geocode <- function(latitude, longitude, intersection = F,
                             distance = 0) {
@@ -156,6 +168,11 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
 
   # Extract content
   response <- httr::content(request, "parsed", "application/json")
+  if (!is.null(response$error)) {
+    stop(paste0(response$error$message, " Please verify that the provided ",
+                "coordinates are valid latitude and longitude values."))
+
+  }
 
   # Final result
   result <- data.frame(
