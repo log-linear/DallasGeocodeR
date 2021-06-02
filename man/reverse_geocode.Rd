@@ -27,9 +27,10 @@ Convert lat/long coordinates to City of Dallas addresses using the
 \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
 DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
 reverse geocoding service}. Note that this service can only convert a single
-set of coordinates at a time. See the \href{https://gis.dallascityhall.com/
-wwwgis/sdk/rest/index.html#/Reverse_Geocode/02ss00000030000000/}{Reverse
-Geocode documentation page} for additional details.
+set of coordinates at a time. See ArcGIS's
+\href{https://developers.arcgis.com/rest/geocode/api-reference/
+geocoding-reverse-geocode.htm}{Reverse Geocode} documentation page for
+additional details.
 }
 \examples{
 reverse_geocode(2516412.847819, 6986517.2125469996)
