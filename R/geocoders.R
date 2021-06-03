@@ -1,9 +1,6 @@
 
 # Geocoder Service URL
-service_url <- paste0(
-  "https://gis.dallascityhall.com/wwwgis/rest/services",
-  "/ToolServices/DallasStreetsLocator/GeocodeServer/"
-)
+base_url <- "https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices"
 
 #' Convert City of Dallas addresses to lat/long coordinates
 #'
@@ -23,6 +20,11 @@ service_url <- paste0(
 #'   defaults to \code{seq(street)} if not provided. If providing this
 #'   argument (e.g., to join onto an existing dataframe), note that each
 #'   integer in the vector must be unique.
+#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+#' options include AccountPointsLocator, AccountpointsStreetLocator, and
+#' ParcelLocator. See the corresponding pages under the
+#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+#' ToolServices} directory for additional details.
 #'
 #' @return A \code{data.frame} of geocoded address results. Includes original
 #'   address alongside generated lat/long coordinates.
@@ -38,9 +40,10 @@ service_url <- paste0(
 #' geocode_addresses(addresses$street)
 #'
 #' @export
-geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
-
-  geocoder_url <- paste0(service_url, "geocodeAddresses")
+geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
+  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
+  "AccountpointsStreetLocator"))
+{
   batch_size <- 1000
   n_addresses <- length(street)
 
@@ -62,6 +65,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
   if (is.null(id)) id <- seq(street)
   else id <- as.numeric(id)
 
+  server = match.arg(server)
+
   # Create JSON payload
   nested_list <- list(
     records = lapply(seq(id),
@@ -77,6 +82,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
   )
 
   # Submit request
+  geocoder_url <- paste(base_url, server, "GeocodeServer", "geocodeAddresses",
+                        sep = "/")
   request <- httr::POST(
     url = geocoder_url,
     body = params,
@@ -90,9 +97,9 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
     seq(id),
     function(i) list(
       id = id[[i]],
-      latitude = locations[[i]]$attributes$X,
-      longitude = locations[[i]]$attributes$Y,
-      score = locations[[i]]$score,
+      latitude = locations[[i]]$location$x,
+      longitude = locations[[i]]$location$y,
+      score = locations[[i]]$attributes$Score,
       status = locations[[i]]$attributes$Status,
       address = locations[[i]]$address,
       address_type = locations[[i]]$attributes$Addr_type
@@ -122,6 +129,11 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #'   nearest address to the given point. Default is FALSE.
 #' @param distance scalar, maximum distance in meters from coordinates
 #'   within which a matching address should be searched. Default value is 0.
+#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+#' options include AccountPointsLocator, AccountpointsStreetLocator, and
+#' ParcelLocator. See the corresponding pages under the
+#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+#' ToolServices} directory for additional details.
 #'
 #' @return A single row \code{data.frame} of the reverse-geocoded address with
 #'   columns \code{street}, \code{city}, and \code{zip}
@@ -139,10 +151,10 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL) {
 #' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #'
 #' @export
-reverse_geocode <- function(latitude, longitude, intersection = F,
-                            distance = 0) {
-
-  geocoder_url <- paste0(service_url, "reverseGeocode")
+reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
+  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
+  "AccountpointsStreetLocator"))
+{
 
   # Input validation
   if (any(length(latitude) > 1, length(longitude) > 1, length(distance) > 1,
@@ -156,8 +168,11 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
                      "",
                      paste0("&distance=", distance))
   intersection <- ifelse(intersection == T, "true", "false")
+  server <- match.arg(server)
 
   # Submit request
+  geocoder_url <- paste(base_url, server, "GeocodeServer", "reverseGeocode",
+                        sep = "/")
   post_url = paste0(geocoder_url,
                     "?location=", latitude, ",", longitude,
                     distance,
@@ -174,9 +189,7 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
 
   # Final result
   results <- data.frame(
-    street = response$address$Street,
-    city = response$address$City,
-    zip = response$address$ZIP,
+    address = response$address$Match_addr,
     latitude = latitude,
     longitude = longitude
   )
@@ -202,6 +215,11 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
 #'   (i.e. a character vector of length 1)
 #' @param max_locs optional, maximum number of address candidates to return.
 #'   Must be a single scalar value.
+#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+#' options include AccountPointsLocator, AccountpointsStreetLocator, and
+#' ParcelLocator. See the corresponding pages under the
+#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+#' ToolServices} directory for additional details.
 #'
 #' @return a \code{data.frame} of all address candidates and respective lat/long
 #'   coordinates and address matching scores
@@ -211,9 +229,9 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
 #'
 #' @export
 find_address_candidates <- function(street, city = NULL, zip = NULL,
-                                    max_locs = NULL) {
-
-  geocoder_url <- paste0(service_url, "findAddressCandidates")
+  max_locs = NULL, server = c("DallasStreetsLocator", "ParcelLocator",
+  "AccountPointsLocator", "AccountpointsStreetLocator"))
+{
 
   # Input validation
   if (any(length(street) > 1, length(city) > 1, length(zip) > 1)) {
@@ -233,6 +251,11 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
   if (is.null(max_locs)) max_locs <- ""
   else max_locs <- paste0("&maxLocations=", max_locs)
 
+  server <- match.arg(server)
+
+  # Submit request
+  geocoder_url <- paste(base_url, server, "GeocodeServer",
+                        "findAddressCandidates", sep = "/")
   post_url <- gsub(" ", "%20", paste0(geocoder_url,
                                                        "?Street=", street,
                                                        "&City=", city,
@@ -263,15 +286,26 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
 #===============================================================================
 # Test code
 #===============================================================================
-addresses <- data.frame(
-  street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
-  city = c('Dallas', 'Dallas', 'Dallas'),
-  zip = c('75218', '75201', '75210')
-)
-
-test <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
-test <- geocode_addresses(addresses$street)
-test2 <- reverse_geocode(test$latitude[[1]], test$longitude[[1]])
-
-test3 <- find_address_candidates(addresses$street[[1]], addresses$city[[1]], addresses$zip[[1]])
-test3 <- find_address_candidates(addresses$street[[1]], max_locs = 1)
+# addresses <- data.frame(
+#   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
+#   city = c('Dallas', 'Dallas', 'Dallas'),
+#   zip = c('75218', '75201', '75210')
+# )
+#
+# test <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
+# test02 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "ParcelLocator")
+# test03 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "AccountPointsLocator")
+# test04 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "AccountpointsStreetLocator")
+# # test05 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "")
+# # test06 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "test")
+# test07 <- geocode_addresses(addresses$street)
+# test08 <- reverse_geocode(test$latitude[[1]], test$longitude[[1]])
+# test09 <- reverse_geocode(test$latitude[[1]], test$longitude[[1]], server = "ParcelLocator")  # Not working
+# test10 <- reverse_geocode(test$latitude[[1]], test$longitude[[1]], server = "AccountPointsLocator")  # Not working
+# test11 <- reverse_geocode(test$latitude[[1]], test$longitude[[1]], server = "AccountpointsStreetLocator")
+#
+# test12 <- find_address_candidates(addresses$street[[1]], addresses$city[[1]], addresses$zip[[1]])
+# test13 <- find_address_candidates(addresses$street[[1]], max_locs = 1)
+# test14 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "ParcelLocator")
+# test15 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "AccountPointsLocator")
+# test16 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "AccountpointsStreetLocator")

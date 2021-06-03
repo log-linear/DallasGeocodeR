@@ -4,7 +4,14 @@
 \alias{geocode_addresses}
 \title{Convert City of Dallas addresses to lat/long coordinates}
 \usage{
-geocode_addresses(street, city = NULL, zip = NULL, id = NULL)
+geocode_addresses(
+  street,
+  city = NULL,
+  zip = NULL,
+  id = NULL,
+  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
+    "AccountpointsStreetLocator")
+)
 }
 \arguments{
 \item{street}{character vector of street addresses.}
@@ -17,6 +24,12 @@ geocode_addresses(street, city = NULL, zip = NULL, id = NULL)
 defaults to \code{seq(street)} if not provided. If providing this
 argument (e.g., to join onto an existing dataframe), note that each
 integer in the vector must be unique.}
+
+\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+options include AccountPointsLocator, AccountpointsStreetLocator, and
+ParcelLocator. See the corresponding pages under the
+\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+ToolServices} directory for additional details.}
 }
 \value{
 A \code{data.frame} of geocoded address results. Includes original

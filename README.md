@@ -3,8 +3,8 @@
 ## Overview
 
 DallasGeocodeR is an R package providing convenient wrapper functions for the 
-[City of Dallas's DallasStreetsLocator service](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer),
-a REST API service powered by ArcGIS. 
+City of Dallas's [GeocodeServers](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices),
+a set of geocoding services powered by ArcGIS's REST API. 
 
 Currently, this package provides R bindings for the following operations:
 

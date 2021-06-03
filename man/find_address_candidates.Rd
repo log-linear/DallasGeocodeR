@@ -4,7 +4,14 @@
 \alias{find_address_candidates}
 \title{Find address candidates for City of Dallas addresses}
 \usage{
-find_address_candidates(street, city = NULL, zip = NULL, max_locs = NULL)
+find_address_candidates(
+  street,
+  city = NULL,
+  zip = NULL,
+  max_locs = NULL,
+  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
+    "AccountpointsStreetLocator")
+)
 }
 \arguments{
 \item{street}{street address to match against. Must be a single string (i.e.
@@ -18,6 +25,12 @@ a character vector of length 1)}
 
 \item{max_locs}{optional, maximum number of address candidates to return.
 Must be a single scalar value.}
+
+\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+options include AccountPointsLocator, AccountpointsStreetLocator, and
+ParcelLocator. See the corresponding pages under the
+\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+ToolServices} directory for additional details.}
 }
 \value{
 a \code{data.frame} of all address candidates and respective lat/long

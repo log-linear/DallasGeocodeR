@@ -4,7 +4,14 @@
 \alias{reverse_geocode}
 \title{Convert lat/long coordinates to City of Dallas addresses}
 \usage{
-reverse_geocode(latitude, longitude, intersection = F, distance = 0)
+reverse_geocode(
+  latitude,
+  longitude,
+  intersection = F,
+  distance = 0,
+  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
+    "AccountpointsStreetLocator")
+)
 }
 \arguments{
 \item{latitude}{scalar, latitude coordinate to reverse geocode,}
@@ -17,6 +24,12 @@ nearest address to the given point. Default is FALSE.}
 
 \item{distance}{scalar, maximum distance in meters from coordinates
 within which a matching address should be searched. Default value is 0.}
+
+\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+options include AccountPointsLocator, AccountpointsStreetLocator, and
+ParcelLocator. See the corresponding pages under the
+\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+ToolServices} directory for additional details.}
 }
 \value{
 A single row \code{data.frame} of the reverse-geocoded address with
