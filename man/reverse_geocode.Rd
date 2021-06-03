@@ -25,11 +25,11 @@ nearest address to the given point. Default is FALSE.}
 \item{distance}{scalar, maximum distance in meters from coordinates
 within which a matching address should be searched. Default value is 0.}
 
-\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 options include AccountPointsLocator, AccountpointsStreetLocator, and
-ParcelLocator. See the corresponding pages under the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-ToolServices} directory for additional details.}
+ParcelLocator. See the corresponding pages for these services under the
+City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+ToolServices}{ToolServices} directory for additional details.}
 }
 \value{
 A single row \code{data.frame} of the reverse-geocoded address with
@@ -37,13 +37,13 @@ columns \code{street}, \code{city}, and \code{zip}
 }
 \description{
 Convert lat/long coordinates to City of Dallas addresses using the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
-reverse geocoding service}. Note that this service can only convert a single
+City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
+reverseGeocode service}. Note that this service can only convert a single
 set of coordinates at a time. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
-geocoding-reverse-geocode.htm}{Reverse Geocode} documentation page for
-additional details.
+geocoding-reverse-geocode.htm}{documentation page} for
+additional details on this service.
 }
 \examples{
 reverse_geocode(2516412.847819, 6986517.2125469996)

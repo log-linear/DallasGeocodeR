@@ -25,9 +25,9 @@ defaults to \code{seq(street)} if not provided. If providing this
 argument (e.g., to join onto an existing dataframe), note that each
 integer in the vector must be unique.}
 
-\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 options include AccountPointsLocator, AccountpointsStreetLocator, and
-ParcelLocator. See the corresponding pages under the
+ParcelLocator. See the corresponding pages for these service under the
 \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
 ToolServices} directory for additional details.}
 }
@@ -37,13 +37,13 @@ address alongside generated lat/long coordinates.
 }
 \description{
 Calculate lat/long coordinates for a given set of addresses using the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-DallasStreetsLocator/GeocodeServer/geocodeAddresses}{City of Dallas's public
-geocoding service}. Note that this service can geocode a \strong{maximum 1000
-addresses} per request. Calling this function on more than 1000 addresses
-will return an error. See ArcGIS's \href{https://developers.arcgis.com/rest/
-geocode/api-reference/geocoding-geocode-addresses.htm}{Geocode Addresses}
-documentation page for additional details.
+City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
+geocodeAddresses service}. Note that this service can geocode a
+\strong{maximum 1000 addresses} per request. Calling this function on more
+than 1000 addresses will return an error. See ArcGIS's
+\href{https://developers.arcgis.com/rest/geocode/api-reference/
+geocoding-geocode-addresses.htm}{documentation page} for additional details.
 }
 \examples{
 addresses <- data.frame(

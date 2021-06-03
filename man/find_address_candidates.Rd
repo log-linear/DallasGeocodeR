@@ -26,11 +26,11 @@ a character vector of length 1)}
 \item{max_locs}{optional, maximum number of address candidates to return.
 Must be a single scalar value.}
 
-\item{server}{GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
+\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 options include AccountPointsLocator, AccountpointsStreetLocator, and
-ParcelLocator. See the corresponding pages under the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-ToolServices} directory for additional details.}
+ParcelLocator. See the corresponding pages for these services under the
+City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+ToolServices}{ToolServices} directory for additional details.}
 }
 \value{
 a \code{data.frame} of all address candidates and respective lat/long
@@ -38,13 +38,13 @@ coordinates and address matching scores
 }
 \description{
 Identify matching City of Dallas addresses for a given address using the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
-address candidate service}. Note that this operation can only process one
-address at a time. See ArcGIS's
+City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+services/ToolServices/DallasStreetsLocator/GeocodeServer/
+findAddressCandidates}{findAddressCandidates}. Note that this operation can
+only process one address at a time. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
-geocoding-find-address-candidates.htm}{findAddressCandidates} documentation
-page for additional details
+geocoding-find-address-candidates.htm}{documentation page} for additional
+details on this service.
 }
 \examples{
 find_address_candidates("1500 Marilla St", max_locs = 1)

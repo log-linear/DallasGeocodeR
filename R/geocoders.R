@@ -5,13 +5,13 @@
 #' Convert City of Dallas addresses to lat/long coordinates
 #'
 #' Calculate lat/long coordinates for a given set of addresses using the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-#' DallasStreetsLocator/GeocodeServer/geocodeAddresses}{City of Dallas's public
-#' geocoding service}. Note that this service can geocode a \strong{maximum 1000
-#' addresses} per request. Calling this function on more than 1000 addresses
-#' will return an error. See ArcGIS's \href{https://developers.arcgis.com/rest/
-#' geocode/api-reference/geocoding-geocode-addresses.htm}{Geocode Addresses}
-#' documentation page for additional details.
+#' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+#' services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
+#' geocodeAddresses service}. Note that this service can geocode a
+#' \strong{maximum 1000 addresses} per request. Calling this function on more
+#' than 1000 addresses will return an error. See ArcGIS's
+#' \href{https://developers.arcgis.com/rest/geocode/api-reference/
+#' geocoding-geocode-addresses.htm}{documentation page} for additional details.
 #'
 #' @param street character vector of street addresses.
 #' @param city optional, character vector of city names.
@@ -20,11 +20,11 @@
 #'   defaults to \code{seq(street)} if not provided. If providing this
 #'   argument (e.g., to join onto an existing dataframe), note that each
 #'   integer in the vector must be unique.
-#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
-#' options include AccountPointsLocator, AccountpointsStreetLocator, and
-#' ParcelLocator. See the corresponding pages under the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-#' ToolServices} directory for additional details.
+#' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
+#'   options include AccountPointsLocator, AccountpointsStreetLocator, and
+#'   ParcelLocator. See the corresponding pages for these service under the
+#'   \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
+#'   ToolServices} directory for additional details.
 #'
 #' @return A \code{data.frame} of geocoded address results. Includes original
 #'   address alongside generated lat/long coordinates.
@@ -114,13 +114,13 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #' Convert lat/long coordinates to City of Dallas addresses
 #'
 #' Convert lat/long coordinates to City of Dallas addresses using the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-#' DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
-#' reverse geocoding service}. Note that this service can only convert a single
+#' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+#' services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
+#' reverseGeocode service}. Note that this service can only convert a single
 #' set of coordinates at a time. See ArcGIS's
 #' \href{https://developers.arcgis.com/rest/geocode/api-reference/
-#' geocoding-reverse-geocode.htm}{Reverse Geocode} documentation page for
-#' additional details.
+#' geocoding-reverse-geocode.htm}{documentation page} for
+#' additional details on this service.
 #'
 #' @param latitude scalar, latitude coordinate to reverse geocode,
 #' @param longitude scalar, longitude coordinate to reverse geocode
@@ -129,11 +129,11 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #'   nearest address to the given point. Default is FALSE.
 #' @param distance scalar, maximum distance in meters from coordinates
 #'   within which a matching address should be searched. Default value is 0.
-#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
-#' options include AccountPointsLocator, AccountpointsStreetLocator, and
-#' ParcelLocator. See the corresponding pages under the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-#' ToolServices} directory for additional details.
+#' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
+#'   options include AccountPointsLocator, AccountpointsStreetLocator, and
+#'   ParcelLocator. See the corresponding pages for these services under the
+#'   City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+#'   ToolServices}{ToolServices} directory for additional details.
 #'
 #' @return A single row \code{data.frame} of the reverse-geocoded address with
 #'   columns \code{street}, \code{city}, and \code{zip}
@@ -198,13 +198,13 @@ reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
 #' Find address candidates for City of Dallas addresses
 #'
 #' Identify matching City of Dallas addresses for a given address using the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices/
-#' DallasStreetsLocator/GeocodeServer/reverseGeocode}{City of Dallas's public
-#' address candidate service}. Note that this operation can only process one
-#' address at a time. See ArcGIS's
+#' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
+#' services/ToolServices/DallasStreetsLocator/GeocodeServer/
+#' findAddressCandidates}{findAddressCandidates}. Note that this operation can
+#' only process one address at a time. See ArcGIS's
 #' \href{https://developers.arcgis.com/rest/geocode/api-reference/
-#' geocoding-find-address-candidates.htm}{findAddressCandidates} documentation
-#' page for additional details
+#' geocoding-find-address-candidates.htm}{documentation page} for additional
+#' details on this service.
 #'
 #' @param street street address to match against. Must be a single string (i.e.
 #'   a character vector of length 1)
@@ -214,11 +214,11 @@ reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
 #'   (i.e. a character vector of length 1)
 #' @param max_locs optional, maximum number of address candidates to return.
 #'   Must be a single scalar value.
-#' @param server GeocodeServer to use. Defaults to Dallas StreetsLocator. Other
-#' options include AccountPointsLocator, AccountpointsStreetLocator, and
-#' ParcelLocator. See the corresponding pages under the
-#' \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-#' ToolServices} directory for additional details.
+#' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
+#'   options include AccountPointsLocator, AccountpointsStreetLocator, and
+#'   ParcelLocator. See the corresponding pages for these services under the
+#'   City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+#'   ToolServices}{ToolServices} directory for additional details.
 #'
 #' @return a \code{data.frame} of all address candidates and respective lat/long
 #'   coordinates and address matching scores
