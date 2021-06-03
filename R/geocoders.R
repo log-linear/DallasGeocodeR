@@ -22,7 +22,7 @@
 #'   integer in the vector must be unique.
 #' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 #'   options include AccountPointsLocator, AccountpointsStreetLocator, and
-#'   ParcelLocator. See the corresponding pages for these service under the
+#'   ParcelLocator. See the corresponding pages for each service under the
 #'   \href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
 #'   ToolServices} directory for additional details.
 #'
@@ -97,8 +97,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
     seq(id),
     function(i) list(
       id = id[[i]],
-      latitude = locations[[i]]$location$x,
-      longitude = locations[[i]]$location$y,
+      longitude = locations[[i]]$location$x,
+      latitude = locations[[i]]$location$y,
       score = locations[[i]]$attributes$Score,
       status = locations[[i]]$attributes$Status,
       address = locations[[i]]$address,
@@ -122,8 +122,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #' geocoding-reverse-geocode.htm}{documentation page} for
 #' additional details on this service.
 #'
-#' @param latitude scalar, latitude coordinate to reverse geocode,
 #' @param longitude scalar, longitude coordinate to reverse geocode
+#' @param latitude scalar, latitude coordinate to reverse geocode,
 #' @param intersection logical boolean value specifying whether the
 #'   geocode service should return the nearest street intersection or the
 #'   nearest address to the given point. Default is FALSE.
@@ -131,7 +131,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #'   within which a matching address should be searched. Default value is 0.
 #' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 #'   options include AccountPointsLocator, AccountpointsStreetLocator, and
-#'   ParcelLocator. See the corresponding pages for these services under the
+#'   ParcelLocator. See the corresponding pages for each service under the
 #'   City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 #'   ToolServices}{ToolServices} directory for additional details.
 #'
@@ -151,7 +151,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #'
 #' @export
-reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
+reverse_geocode <- function(longitude, latitude, intersection = F, distance = 0,
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
   "AccountpointsStreetLocator"))
 {
@@ -161,8 +161,8 @@ reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
     stop(paste("This operation can only process one set of coordinates",
                "at a time. All arguments must be of length 1."))
   }
-  latitude <- as.numeric(latitude)
   longitude <- as.numeric(longitude)
+  latitude <- as.numeric(latitude)
   distance <- ifelse(is.null(distance) | distance < 1,
                      "",
                      paste0("&distance=", distance))
@@ -216,7 +216,7 @@ reverse_geocode <- function(latitude, longitude, intersection = F, distance = 0,
 #'   Must be a single scalar value.
 #' @param server GeocodeServer to use. Defaults to DallasStreetsLocator. Other
 #'   options include AccountPointsLocator, AccountpointsStreetLocator, and
-#'   ParcelLocator. See the corresponding pages for these services under the
+#'   ParcelLocator. See the corresponding pages for each service under the
 #'   City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 #'   ToolServices}{ToolServices} directory for additional details.
 #'
@@ -271,8 +271,8 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
     function(i) list(
       candidate = i,
       address = candidates[[i]]$address,
-      latitude = candidates[[i]]$location$x,
-      longitude = candidates[[i]]$location$y,
+      longitude = candidates[[i]]$location$x,
+      latitude = candidates[[i]]$location$y,
       score = candidates[[i]]$score
     )
   )
