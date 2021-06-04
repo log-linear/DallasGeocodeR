@@ -42,7 +42,7 @@
 #' @export
 geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-  "AccountpointsStreetLocator"))
+  "AccountpointsStreetLocator"), out_sr = 4326)
 {
   batch_size <- 1000
   n_addresses <- length(street)
@@ -78,7 +78,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
   json <- rjson::toJSON(nested_list)
   params <- list(
     addresses = json,
-    f = "json"
+    f = "json",
+    outSR = out_sr
   )
 
   # Submit request
@@ -151,33 +152,37 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = NULL,
 #' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #'
 #' @export
-reverse_geocode <- function(longitude, latitude, intersection = F, distance = 0,
+reverse_geocode <- function(longitude, latitude, intersection = F,
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-  "AccountpointsStreetLocator"))
+  "AccountpointsStreetLocator"), sr = 4326)
 {
   # Input validation
-  if (any(length(latitude) > 1, length(longitude) > 1, length(distance) > 1,
+  if (any(length(latitude) > 1, length(longitude) > 1,
           length(intersection) > 1)) {
     stop(paste("This operation can only process one set of coordinates",
                "at a time. All arguments must be of length 1."))
   }
   longitude <- as.numeric(longitude)
   latitude <- as.numeric(latitude)
-  distance <- ifelse(is.null(distance) | distance < 1,
-                     "",
-                     paste0("&distance=", distance))
   intersection <- ifelse(intersection == T, "true", "false")
   server <- match.arg(server)
+
+  # Create JSON payload
+  nested_list <- list(
+    x = longitude, y = latitude, spatialReference = list(wkid = sr)
+  )
+  json <- rjson::toJSON(nested_list)
+  params <- list(
+    location = json,
+    outSR = sr,
+    returnIntersection = intersection,
+    f = "json"
+  )
 
   # Submit request
   geocoder_url <- paste(.base_url, server, "GeocodeServer", "reverseGeocode",
                         sep = "/")
-  post_url = paste0(geocoder_url,
-                    "?location=", latitude, ",", longitude,
-                    distance,
-                    "&returnIntersection=", intersection,
-                    "&f=json")
-  request <- httr::POST(post_url)
+  request <- httr::POST(geocoder_url, body = params, encode = "form")
 
   # Extract content
   response <- httr::content(request, "parsed", "application/json")
@@ -229,7 +234,7 @@ reverse_geocode <- function(longitude, latitude, intersection = F, distance = 0,
 #' @export
 find_address_candidates <- function(street, city = NULL, zip = NULL,
   max_locs = NULL, server = c("DallasStreetsLocator", "ParcelLocator",
-  "AccountPointsLocator", "AccountpointsStreetLocator"))
+  "AccountPointsLocator", "AccountpointsStreetLocator"), out_sr = 4326)
 {
   # Input validation
   if (any(length(street) > 1, length(city) > 1, length(zip) > 1)) {
@@ -259,6 +264,7 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
                           "?Street=", street,
                           "&City=", city,
                           "&ZIP=", zip,
+                          "&outSR=", out_sr,
                           max_locs,
                           "&f=json"))
   request <- httr::POST(url = post_url)

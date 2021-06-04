@@ -1,6 +1,7 @@
 #===============================================================================
 # Test code
 #===============================================================================
+rm(list = ls())
 # install.packages("devtools")
 devtools::load_all()
 addresses <- data.frame(
@@ -27,13 +28,13 @@ test08 <- geocode_addresses(addresses$street, server = "AccountpointsStreetLocat
 #-------------------------------------------------------------------------------
 # reverse_geocode
 #-------------------------------------------------------------------------------
-test09 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]])
-test10 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "ParcelLocator")
-test11 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "AccountPointsLocator")
-test12 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "AccountpointsStreetLocator")
+test09 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]])
+test10 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "ParcelLocator")
+test11 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "AccountPointsLocator")
+test12 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "AccountpointsStreetLocator")
 
 #-------------------------------------------------------------------------------
-# reverse_geocode
+# find_address_candidates
 #-------------------------------------------------------------------------------
 test13 <- find_address_candidates(addresses$street[[1]], addresses$city[[1]], addresses$zip[[1]])
 test14 <- find_address_candidates(addresses$street[[1]], max_locs = 1)
