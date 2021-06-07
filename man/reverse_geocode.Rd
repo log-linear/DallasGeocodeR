@@ -8,13 +8,13 @@ reverse_geocode(
   latitude,
   longitude,
   intersection = F,
-  distance = 0,
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-    "AccountpointsStreetLocator")
+    "AccountpointsStreetLocator"),
+  sr = 4326
 )
 }
 \arguments{
-\item{latitude}{scalar, latitude coordinate to reverse geocode,}
+\item{latitude}{scalar, latitude coordinate to reverse geocode}
 
 \item{longitude}{scalar, longitude coordinate to reverse geocode}
 
@@ -22,14 +22,20 @@ reverse_geocode(
 geocode service should return the nearest street intersection or the
 nearest address to the given point. Default is FALSE.}
 
-\item{distance}{scalar, maximum distance in meters from coordinates
-within which a matching address should be searched. Default value is 0.}
+\item{server}{GeocodeServer to use. Refer to the
+\href{https://gis.dallascityhall.com/wwwgis/rest/services/
+ToolServices}{ToolServices} API directory for details on each server.}
 
-\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator. Other
-options include AccountPointsLocator, AccountpointsStreetLocator, and
-ParcelLocator. See the corresponding pages for these services under the
-City of Dallas's \href{https://gis.dallascityhall.com/wwwgis/rest/services/
-ToolServices}{ToolServices} directory for additional details.}
+\item{sr}{Spatial Reference ID (WKID) for the provided lat/long
+coordinate system. Defaults to 4326, which corresponds to
+\href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the addresses
+will be used with the City of Dallas's MapServers, you may wish to set this
+to \strong{2276}, the default WKID for many Dallas services. Refer to the
+\href{https://developers.arcgis.com/rest/services-reference/enterprise/
+projected-coordinate-systems.htm}{Projected} and \href{https://developers.
+arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
+.htm}{Geographic} coordinate system documentation pages for a full list of
+valid WKIDs.}
 }
 \value{
 A single row \code{data.frame} of the reverse-geocoded address with
@@ -40,13 +46,13 @@ Convert lat/long coordinates to City of Dallas addresses using the
 City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
 reverseGeocode service}. Note that this service can only convert a single
-set of coordinates at a time. See ArcGIS's
+set of coordinates per function call. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
 geocoding-reverse-geocode.htm}{documentation page} for
-additional details on this service.
+additional details.
 }
 \examples{
-reverse_geocode(2516412.847819, 6986517.2125469996)
+reverse_geocode(32.8217, -96.7163)
 
 addresses <- data.frame(
   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),

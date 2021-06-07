@@ -28,10 +28,10 @@ test08 <- geocode_addresses(addresses$street, server = "AccountpointsStreetLocat
 #-------------------------------------------------------------------------------
 # reverse_geocode
 #-------------------------------------------------------------------------------
-test09 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]])
-test10 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "ParcelLocator")
-test11 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "AccountPointsLocator")
-test12 <- reverse_geocode(test01$longitude[[1]], test01$latitude[[1]], server = "AccountpointsStreetLocator")
+test09 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]])
+test10 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "ParcelLocator")
+test11 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "AccountPointsLocator")
+test12 <- reverse_geocode(test01$latitude[[1]], test01$longitude[[1]], server = "AccountpointsStreetLocator")
 
 #-------------------------------------------------------------------------------
 # find_address_candidates

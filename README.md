@@ -2,23 +2,28 @@
 
 ## Overview
 
-DallasGeocodeR is an R package providing convenient wrapper functions for the 
-City of Dallas's [GeocodeServers](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices),
-a set of geocoding services powered by ArcGIS's REST API. 
+DallasGeocodeR is an R package for interfacing with the City of Dallas's [public 
+geocoding services](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices),
+a set of REST APIs powered by ArcGIS. The DallasGeocodeR package 
+provides convenient wrapper functions for several key operations:
 
-Currently, this package provides R bindings for the following operations:
-
-- [geocodeAddresses](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-geocode-addresses.htm)
-- [reverseGeocode](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-reverse-geocode.htm)
-- [findAddressCandidates](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm)
-
+- [geocodeAddresses](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-geocode-addresses.htm) -
+For calculating geographic coordinates (latitude/longitude) from street 
+addresses or intersections
+- [reverseGeocode](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-reverse-geocode.htm) -
+For the opposite operation: determining street addresses or intersections from
+latitude and longitude coordinates
+- [findAddressCandidates](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm) -
+For finding probable addresses and lat/long coordinates for a given location
+  
 ## Installation
 
-The easiest way to install is through the `devtools` package:
+The easiest way to install DallasGeocodeR is directly through git via the 
+`remotes` package:
 
 ```R
-# install.packages("devtools")
-devtools::install_github("log-linear/DallasGeocodeR")
+# install.packages("remotes")
+remotes::install_github("log-linear/DallasGeocodeR")
 ```
 
 ## Usage
@@ -52,7 +57,7 @@ geocode_addresses(addresses$street)
 ```R
 library(DallasGeocodeR)
 
-reverse_geocode(2516412.847819, 6986517.2125469996)
+reverse_geocode(32.8217, -96.7163) 
 #>            street   city   zip latitude longitude
 #> 1 8525 GARLAND RD DALLAS 75218  2516413   6986517
 ```

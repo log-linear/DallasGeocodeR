@@ -8,28 +8,37 @@ geocode_addresses(
   street,
   city = NULL,
   zip = NULL,
-  id = NULL,
+  id = seq(street),
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-    "AccountpointsStreetLocator")
+    "AccountpointsStreetLocator"),
+  out_sr = 4326
 )
 }
 \arguments{
-\item{street}{character vector of street addresses.}
+\item{street}{character vector of street addresses to geocode.}
 
-\item{city}{optional, character vector of city names.}
+\item{city}{optional, character vector of city names to geocode.}
 
-\item{zip}{optional, character vector of postal codes.}
+\item{zip}{optional, character vector of postal codes to geocode.}
 
-\item{id}{optional, numeric vector uniquely identifying each address,
-defaults to \code{seq(street)} if not provided. If providing this
-argument (e.g., to join onto an existing dataframe), note that each
-integer in the vector must be unique.}
+\item{id}{optional, numeric vector uniquely identifying each address, If
+providing this argument (e.g., to join onto an existing dataframe), note
+that each integer must be unique.}
 
-\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator. Other
-options include AccountPointsLocator, AccountpointsStreetLocator, and
-ParcelLocator. See the corresponding pages for these service under the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices}{
-ToolServices} directory for additional details.}
+\item{server}{GeocodeServer to use. Refer to the
+\href{https://gis.dallascityhall.com/wwwgis/rest/services/
+ToolServices}{ToolServices} API directory for details on each server.}
+
+\item{out_sr}{Spatial Reference ID (WKID) for the desired lat/long
+coordinate system. Defaults to 4326, which corresponds to
+\href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
+will be used with the City of Dallas's MapServers, you may wish to set this
+to \strong{2276}, the default WKID for many Dallas services. Refer to the
+\href{https://developers.arcgis.com/rest/services-reference/enterprise/
+projected-coordinate-systems.htm}{Projected} and \href{https://developers.
+arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
+.htm}{Geographic} coordinate system documentation pages for a full list of
+valid WKIDs.}
 }
 \value{
 A \code{data.frame} of geocoded address results. Includes original
@@ -40,8 +49,7 @@ Calculate lat/long coordinates for a given set of addresses using the
 City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
 geocodeAddresses service}. Note that this service can geocode a
-\strong{maximum 1000 addresses} per request. Calling this function on more
-than 1000 addresses will return an error. See ArcGIS's
+\strong{maximum 1000 addresses} per function call. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
 geocoding-geocode-addresses.htm}{documentation page} for additional details.
 }
