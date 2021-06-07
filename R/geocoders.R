@@ -105,21 +105,22 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 
   if (output == "latlong") {
     locations <- response$locations
-    attributes <- lapply(
-      seq(id),
-      function(i) list(
-        id = id[[i]],
-        latitude = locations[[i]]$location$y,
-        longitude = locations[[i]]$location$x,
-        score = locations[[i]]$attributes$Score,
-        status = locations[[i]]$attributes$Status,
-        address = locations[[i]]$address,
-        address_type = locations[[i]]$attributes$Addr_type
-      )
-    )
 
-    # Convert nested list attributes into dataframe
-    results <- data.frame(do.call(rbind.data.frame, attributes))
+    results <- matrix(nrow = n_addresses, ncol = 7)
+    for (i in 1:n_addresses) {
+      results[i,1] <- id[[i]]
+      results[i,2] <- locations[[i]]$location$y
+      results[i,3] <- locations[[i]]$location$x
+      results[i,4] <- locations[[i]]$attributes$Score
+      results[i,5] <- locations[[i]]$attributes$Status
+      results[i,6] <- locations[[i]]$address
+      results[i,7] <- locations[[i]]$attributes$Addr_type
+    }
+
+    # Convert to dataframe
+    results <- data.frame(results)
+    colnames(results) <- c("id", "latitude", "longitude", "score", "status",
+                           "address", "address_type")
   }
   else results <- response
 
@@ -295,18 +296,21 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
   if (!is.null(response$error)) stop(response$error$message)
 
   candidates <- response$candidates
-  attributes <- lapply(
-    seq(candidates),
-    function(i) list(
-      candidate = i,
-      address = candidates[[i]]$address,
-      latitude = candidates[[i]]$location$y,
-      longitude = candidates[[i]]$location$x,
-      score = candidates[[i]]$score
-    )
-  )
+
+  n_candidates <- length(candidates)
+  results <- matrix(nrow = n_candidates, ncol = 5)
+  for (i in 1:n_candidates) {
+    results[i,1] <- i
+    results[i,2] <- candidates[[i]]$address
+    results[i,3] <- candidates[[i]]$location$y
+    results[i,4] <- candidates[[i]]$location$x
+    results[i,5] <- candidates[[i]]$score
+  }
 
   # Convert nested list attributes into dataframe
-  results <- data.frame(do.call(rbind.data.frame, attributes))
+  results <- data.frame(results)
+  colnames(results) <- c("candidate", "address", "latitude", "longitude",
+                         "score")
+
   return(results)
 }
