@@ -40,13 +40,13 @@ addresses <- data.frame(
 )
 
 geocode_addresses(addresses$street, addresses$city, addresses$zip)
-#> id latitude longitude score status                        address  address_type
+#>    id latitude longitude score status                        address  address_type
 #> 2   1  2516413   6986517   100      M 8525 GARLAND RD, DALLAS, 75218 StreetAddress
 #> 21  2  2491525   6969612   100      M 1500 MARILLA ST, DALLAS, 75201 StreetAddress
 #> 3   3  2502618   6971124   100      M  3809 GRAND AVE, DALLAS, 75210 StreetAddress
 
 geocode_addresses(addresses$street)
-#> id latitude longitude score status                        address  address_type
+#>    id latitude longitude score status                        address  address_type
 #> 2   1  2516413   6986517   100      M 8525 GARLAND RD, DALLAS, 75218 StreetAddress
 #> 21  2  2491525   6969612   100      M 1500 MARILLA ST, DALLAS, 75201 StreetAddress
 #> 3   3  2502618   6971124   100      M  3809 GRAND AVE, DALLAS, 75210 StreetAddress
