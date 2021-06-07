@@ -1,0 +1,115 @@
+---
+title: "DallasGeocodeR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{DallasGeocodeR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+DallasGeocodeR is an R package for interfacing with the City of Dallas's [public
+geocoding services](https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices),
+a set of REST APIs powered by ArcGIS. The DallasGeocodeR package
+provides convenient wrapper functions for several key operations:
+
+- [geocodeAddresses](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-geocode-addresses.htm) -
+For calculating geographic coordinates (latitude/longitude) from street
+addresses or intersections
+- [reverseGeocode](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-reverse-geocode.htm) -
+For the opposite operation: determining street addresses or intersections from
+latitude and longitude coordinates
+- [findAddressCandidates](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm) -
+For finding probable addresses and lat/long coordinates for a given location
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+devtools::load_all()
+```
+
+To get started, first install the package via `remotes`, then simply load in
+the library.
+
+```{r install, eval = F}
+# install.packages("remotes")
+remotes::install_github("log-linear/DallasGeocodeR")
+
+library(DallasGeocodeR)
+```
+```{r setup, echo = F}
+library(DallasGeocodeR)
+```
+## Usage
+
+Below, we highlight some common use cases:
+
+### Geocoding addresses
+
+We begin by creating some sample addresses.
+
+```{r}
+addresses <- data.frame(
+  street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
+  city = c('Dallas', 'Dallas', 'Dallas'),
+  zip = c('75218', '75201', '75210')
+)
+addresses
+```
+
+From here, geocoding addresses is a simple function call:
+
+```{r}
+coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
+print(coords)
+```
+
+Alternatively, ArcGIS's API can also process addresses from street names alone.
+
+```{r}
+geocode_addresses(addresses$street)
+```
+
+The API is generally very accurate. Here we use the `esri2sf` package to connect
+to the City of Dallas's DallasAreaRoads FeatureServer, which we will use in
+combination with `ggplot2` to plot our geocoded addresses onto a map of the
+city's major roads.
+
+```{r eval = F}
+# remotes::install_github("yonghah/esri2sf"
+library(esri2sf)
+library(ggplot2)
+
+url <- "https://services2.arcgis.com/rwnOSbfKSwyTBcwN/ArcGIS/rest/services/DallasAreaRoads/FeatureServer/0"
+dallas <- esri2sf(url)
+#> "Feature Layer"
+#> "esriGeometryPolyline"
+#> "Coordinate Reference System: 2276"
+
+ggplot() +
+  geom_sf(data = dallas) +  # Dallas map layer
+  geom_point(data = coords, mapping = aes(x = longitude, y = latitude),
+             color = "red") +  # Overlay geocoded coordinates
+  coord_sf()
+```
+![](map_plot.png){width=99%}
+
+### Reverse geocoding lat/long coordinates
+
+Using the `reverse_geocode` function, the API can find addresses from a given
+set of coordinates
+
+```{r}
+reverse_geocode(32.8217, -96.7163)
+```
+
+### Finding address candidates
+
+The `find_address_candidates` function takes in a single address as input and
+returns a list of matching City of Dallas addresses.
+
+```{r}
+find_address_candidates("8525 Garland Rd")
+```
