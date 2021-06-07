@@ -11,7 +11,8 @@ geocode_addresses(
   id = seq(street),
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
     "AccountpointsStreetLocator"),
-  out_sr = 4326
+  out_sr = 4326,
+  output = c("latlong", "all")
 )
 }
 \arguments{
@@ -25,24 +26,28 @@ geocode_addresses(
 providing this argument (e.g., to join onto an existing dataframe), note
 that each integer must be unique.}
 
-\item{server}{GeocodeServer to use. Refer to the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/
+\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator.
+Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 ToolServices}{ToolServices} API directory for details on each server.}
 
 \item{out_sr}{Spatial Reference ID (WKID) for the desired lat/long
 coordinate system. Defaults to 4326, which corresponds to
 \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
 will be used with the City of Dallas's MapServers, you may wish to set this
-to \strong{2276}, the default WKID for many Dallas services. Refer to the
+to 2276, the default WKID for many Dallas services. Refer to the
 \href{https://developers.arcgis.com/rest/services-reference/enterprise/
 projected-coordinate-systems.htm}{Projected} and \href{https://developers.
 arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
 .htm}{Geographic} coordinate system documentation pages for a full list of
 valid WKIDs.}
+
+\item{output}{Function output. If \code{latlong} (default), function will
+return a dataframe of lat/long coordinates, addresses, and a few other
+fields. If \code{all}, will return a list corresponding to the full JSON
+response from the server.}
 }
 \value{
-A \code{data.frame} of geocoded address results. Includes original
-address alongside generated lat/long coordinates.
+A dataframe or list of geocoded address results.
 }
 \description{
 Calculate lat/long coordinates for a given set of addresses using the

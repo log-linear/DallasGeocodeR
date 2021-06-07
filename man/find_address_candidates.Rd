@@ -23,15 +23,15 @@ find_address_candidates(
 
 \item{max_locs}{optional, maximum number of address candidates to return}
 
-\item{server}{GeocodeServer to use. Refer to the
-\href{https://gis.dallascityhall.com/wwwgis/rest/services/
+\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator.
+Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 ToolServices}{ToolServices} API directory for details on each server.}
 
 \item{out_sr}{Spatial Reference ID (WKID) for the desired lat/long
 coordinate system. Defaults to 4326, which corresponds to
 \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
 will be used with the City of Dallas's MapServers, you may wish to set this
-to \strong{2276}, the default WKID for many Dallas services. Refer to the
+to 2276, the default WKID for many Dallas services. Refer to the
 \href{https://developers.arcgis.com/rest/services-reference/enterprise/
 projected-coordinate-systems.htm}{Projected} and \href{https://developers.
 arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
