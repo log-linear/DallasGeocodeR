@@ -55,20 +55,22 @@ geocode_addresses(addresses$street)
 ### Reverse geocoding lat/long coordinates
 
 ```R
-library(DallasGeocodeR)
-
-reverse_geocode(32.8217, -96.7163) 
-#>            street   city   zip latitude longitude
-#> 1 8525 GARLAND RD DALLAS 75218  2516413   6986517
+reverse_geocode(coords$latitude, coords$longitude)
+#>                          address latitude longitude
+#> 1 8525 GARLAND RD, DALLAS, 75218 32.82167 -96.71625
+#> 2 1500 MARILLA ST, DALLAS, 75201 32.77634 -96.79815
+#> 3  3809 GRAND AVE, DALLAS, 75210 32.78000 -96.76198
 ```
 
 ### Finding address candidates
 
 ```R
-library(DallasGeocodeR)
-
-find_address_candidates("1500 Marilla St")
-#> candidate                        address latitude longitude score
-#> 2          1 1500 MARILLA ST, DALLAS, 75201  2491525   6969612   100
-#> 21         2 1501 MARILLA ST, DALLAS, 75201  2491514   6969650    79
+find_address_candidates(addresses$street)
+#>   candidate                        address latitude longitude score
+#> 1         1 8525 GARLAND RD, DALLAS, 75218 32.82167 -96.71625   100
+#> 2         2 8526 GARLAND RD, DALLAS, 75218 32.82156 -96.71600    79
+#> 3         1 1500 MARILLA ST, DALLAS, 75201 32.77634 -96.79815   100
+#> 4         2 1501 MARILLA ST, DALLAS, 75201 32.77644 -96.79819    79
+#> 5         1  3809 GRAND AVE, DALLAS, 75210 32.78000 -96.76198   100
+#> 6         2  3810 GRAND AVE, DALLAS, 75210 32.78011 -96.76233    79
 ```

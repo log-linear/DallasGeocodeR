@@ -52,7 +52,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
   "AccountpointsStreetLocator"), out_sr = 4326, output = c("latlong", "all"))
 {
-  sleep <- 2  # Time in seconds to wait between loops
+  sleep <- 1  # Time in seconds to wait between loops
   n_addresses <- length(street)
 
   # Input validation

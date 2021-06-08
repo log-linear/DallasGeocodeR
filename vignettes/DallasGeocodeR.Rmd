@@ -44,11 +44,9 @@ library(DallasGeocodeR)
 ```
 ## Usage
 
-Below, we highlight some common use cases:
-
 ### Geocoding addresses
 
-We begin by creating some sample addresses.
+Let's begin by creating some sample addresses.
 
 ```{r}
 addresses <- data.frame(
@@ -66,16 +64,25 @@ coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
 print(coords)
 ```
 
-Alternatively, ArcGIS's API can also process addresses from street names alone.
+The function does not actually need the `city` and `zip` parameters to run.
+ArcGIS's API can also geocode using just street addresses.
 
 ```{r}
 geocode_addresses(addresses$street)
 ```
 
+Note the `#> [1] "Processing batch 1 of 1"` line in both of the above examples.
+ArcGIS's geocoding API can only process 1000 addresses in a single request. When
+attempting to geocode more than 1000 addresses, the `geocode_addresses` function
+breaks up the address list into batches of 1000, submitting requests to the API
+for each batch one at a time.
+
+#### Example usage: mapping out geocoded addresses
+
 The API is generally very accurate. Here we use the `esri2sf` package to connect
 to the City of Dallas's DallasAreaRoads FeatureServer, which we will use in
 combination with `ggplot2` to plot our geocoded addresses onto a map of the
-city's major roads.
+city's major highways.
 
 ```{r eval = F}
 # remotes::install_github("yonghah/esri2sf"
@@ -84,14 +91,15 @@ library(ggplot2)
 
 url <- "https://services2.arcgis.com/rwnOSbfKSwyTBcwN/ArcGIS/rest/services/DallasAreaRoads/FeatureServer/0"
 dallas <- esri2sf(url)
-#> "Feature Layer"
-#> "esriGeometryPolyline"
-#> "Coordinate Reference System: 2276"
+#> [1] "Feature Layer"
+#> [1] "esriGeometryPolyline"
+#> [1] "Coordinate Reference System: 2276"
 
 ggplot() +
   geom_sf(data = dallas) +  # Dallas map layer
-  geom_point(data = coords, mapping = aes(x = longitude, y = latitude),
-             color = "red") +  # Overlay geocoded coordinates
+  geom_point(data = coords,  # Overlay geocoded coordinates
+             mapping = aes(x = longitude, y = latitude),
+             color = "red") +
   coord_sf()
 ```
 ![](map_plot.png){width=99%}
@@ -102,7 +110,7 @@ Using the `reverse_geocode` function, the API can find addresses from a given
 set of coordinates
 
 ```{r}
-reverse_geocode(32.8217, -96.7163)
+reverse_geocode(coords$latitude, coords$longitude)
 ```
 
 ### Finding address candidates
@@ -111,5 +119,5 @@ The `find_address_candidates` function takes in a single address as input and
 returns a list of matching City of Dallas addresses.
 
 ```{r}
-find_address_candidates("8525 Garland Rd")
+find_address_candidates(addresses$street)
 ```
