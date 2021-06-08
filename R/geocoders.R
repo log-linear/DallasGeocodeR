@@ -7,8 +7,7 @@
 #' Calculate lat/long coordinates for a given set of addresses using the
 #' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 #' services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
-#' geocodeAddresses service}. Note that this service can geocode a
-#' \strong{maximum 1000 addresses} per function call. See ArcGIS's
+#' geocodeAddresses service}. See ArcGIS's
 #' \href{https://developers.arcgis.com/rest/geocode/api-reference/
 #' geocoding-geocode-addresses.htm}{documentation page} for additional details.
 #'
@@ -53,16 +52,10 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
   server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
   "AccountpointsStreetLocator"), out_sr = 4326, output = c("latlong", "all"))
 {
-  batch_size <- 1000
+  sleep <- 2  # Time in seconds to wait between loops
   n_addresses <- length(street)
 
   # Input validation
-  if (n_addresses > batch_size) {
-    stop(paste("Function 'geocode_addresses' can only process a maximum",
-               batch_size,
-               "addresses at once."))
-  }
-
   street[is.na(street)] <- ""
 
   if (is.null(city)) city <- rep("", n_addresses)
@@ -75,37 +68,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
   server <- match.arg(server)
   output <- match.arg(output)
 
-  # Create JSON payload
-  nested_list <- list(
-    records = lapply(seq(id),
-                     function(i) list(attributes = list(OBJECTID = id[[i]],
-                                                        Street = street[[i]],
-                                                        City = city[[i]],
-                                                        ZIP = zip[[i]])))
-  )
-  json <- rjson::toJSON(nested_list)
-  params <- list(
-    addresses = json,
-    f = "json",
-    outSR = out_sr
-  )
-
-  # Submit request
-  geocoder_url <- paste(.base_url, server, "GeocodeServer", "geocodeAddresses",
-                        sep = "/")
-  request <- httr::POST(
-    url = geocoder_url,
-    body = params,
-    encode = "form"
-  )
-
-  # Extract content
-  response <- httr::content(request, "parsed", "application/json")
-  if (!is.null(response$error)) stop(response$error$message)
-
+  # Pre-allocate function output variables
   if (output == "latlong") {
-    locations <- response$locations
-
     object_id <- numeric(n_addresses)
     latitude <- numeric(n_addresses)
     longitude <- numeric(n_addresses)
@@ -113,22 +77,68 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
     status <- character(n_addresses)
     address <- character(n_addresses)
     address_type <- character(n_addresses)
-
-    for (i in 1:n_addresses) {
-      object_id[i] <- id[[i]]
-      latitude[i] <- locations[[i]]$location$y
-      longitude[i] <- locations[[i]]$location$x
-      score[i] <- locations[[i]]$attributes$Score
-      status[i] <- locations[[i]]$attributes$Status
-      address[i] <- locations[[i]]$address
-      address_type[i] <- locations[[i]]$attributes$Addr_type
-    }
-
-    # Convert to dataframe
-    results <- data.frame(id = object_id, latitude, longitude, score, status,
-                          address, address_type)
   }
-  else results <- response
+  else if (output == "all") results <- list()
+
+  # Main function loop
+  geocoder_url <- paste(.base_url, server, "GeocodeServer", "geocodeAddresses",
+                        sep = "/")
+  batches <- split(id, ceiling(seq(id) / 1000))
+  batch_cnt <- 1
+
+  for (batch in batches) {
+    print(paste("Processing batch", batch_cnt, "of", length(batches)))
+
+    batch_size <- length(batch)
+
+    # Create JSON payload
+    nested_list <- list(
+      records = lapply(seq(batch),
+                       function(i) list(attributes = list(OBJECTID = batch[[i]],
+                                                          Street = street[[i]],
+                                                          City = city[[i]],
+                                                          ZIP = zip[[i]])))
+    )
+    json <- rjson::toJSON(nested_list)
+    params <- list(
+      addresses = json,
+      f = "json",
+      outSR = out_sr
+    )
+
+    # Submit request
+    request <- httr::POST(url = geocoder_url, body = params, encode = "form")
+
+    # Extract content
+    response <- httr::content(request, "parsed", "application/json")
+    if (!is.null(response$error)) stop(response$error$message)
+
+    if (output == "latlong") {
+      locations <- response$locations
+
+      for (i in 1:batch_size) {
+        idx <- batch[[i]]
+
+        object_id[idx] <- idx
+        latitude[idx] <- locations[[i]]$location$y
+        longitude[idx] <- locations[[i]]$location$x
+        score[idx] <- locations[[i]]$attributes$Score
+        status[idx] <- locations[[i]]$attributes$Status
+        address[idx] <- locations[[i]]$address
+        address_type[idx] <- locations[[i]]$attributes$Addr_type
+      }
+
+    }
+    else if (output == "all") results[[batch_cnt]] <- response
+
+    Sys.sleep(sleep)
+    batch_cnt <- batch_cnt + 1
+  }
+
+  if (output == "latlong") {
+    results <- data.frame(id = object_id, latitude, longitude, score,
+                          status, address, address_type)
+  }
 
   return(results)
 }
@@ -138,20 +148,15 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 #' Convert lat/long coordinates to City of Dallas addresses using the
 #' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 #' services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
-#' reverseGeocode service}. Note that this service can only convert a single
-#' set of coordinates per function call. See ArcGIS's
+#' reverseGeocode service}. See ArcGIS's
 #' \href{https://developers.arcgis.com/rest/geocode/api-reference/
 #' geocoding-reverse-geocode.htm}{documentation page} for
 #' additional details.
 #'
 #' @param latitude scalar, latitude coordinate to reverse geocode
 #' @param longitude scalar, longitude coordinate to reverse geocode
-#' @param intersection logical boolean value specifying whether the
-#'   geocode service should return the nearest street intersection or the
-#'   nearest address to the given point. Default is FALSE.
-#' @param server GeocodeServer to use. Defaults to DallasStreetsLocator.
-#'   Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
-#'   ToolServices}{ToolServices} API directory for details on each server.
+#' @param intersection boolean value specifying whether the geocode service
+#'   should return the nearest street intersection or the nearest address.
 #' @param sr Spatial Reference ID (WKID) for the provided lat/long
 #'   coordinate system. Defaults to 4326, which corresponds to
 #'   \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the addresses
@@ -163,8 +168,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 #'   .htm}{Geographic} coordinate system documentation pages for a full list of
 #'   valid WKIDs.
 #'
-#' @return A single row \code{data.frame} of the reverse-geocoded address with
-#'   columns \code{street}, \code{city}, and \code{zip}
+#' @return A dataframe containingt the reverse-geocoded address
 #'
 #' @examples
 #' reverse_geocode(32.8217, -96.7163)
@@ -179,48 +183,46 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 #' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #'
 #' @export
-reverse_geocode <- function(latitude, longitude, intersection = F,
-  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-  "AccountpointsStreetLocator"), sr = 4326)
-{
+reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
+  sleep <- 1  # Time in seconds to wait between loops
+
   # Input validation
-  if (any(length(latitude) > 1, length(longitude) > 1,
-          length(intersection) > 1)) {
-    stop(paste("Function 'reverse_geocode' can only process one set of ",
-               "coordinates at a time. All arguments must be of length 1."))
-  }
   latitude <- as.numeric(latitude)
   longitude <- as.numeric(longitude)
   intersection <- ifelse(intersection == T, "true", "false")
-  server <- match.arg(server)
 
-  # Create JSON payload
-  nested_list <- list(
-    y = latitude, x = longitude, spatialReference = list(wkid = sr)
-  )
-  json <- rjson::toJSON(nested_list)
-  params <- list(
-    location = json,
-    outSR = sr,
-    returnIntersection = intersection,
-    f = "json"
-  )
+  # Main function loop
+  geocoder_url <- paste(.base_url, "DallasStreetsLocator", "GeocodeServer",
+                        "reverseGeocode", sep = "/")
+  n_coords <- length(latitude)
+  address <- character(n_coords)
 
-  # Submit request
-  geocoder_url <- paste(.base_url, server, "GeocodeServer", "reverseGeocode",
-                        sep = "/")
-  request <- httr::POST(geocoder_url, body = params, encode = "form")
+  for (i in 1:n_coords) {
 
-  # Extract content
-  response <- httr::content(request, "parsed", "application/json")
-  if (!is.null(response$error)) stop(response$error$message)
+    # Create JSON payload
+    nested_list <- list(y = latitude[[i]], x = longitude[[i]],
+                        spatialReference = list(wkid = sr))
+    json <- rjson::toJSON(nested_list)
+    params <- list(
+      location = json,
+      returnIntersection = intersection,
+      f = "json"
+    )
+
+    # Submit request
+    request <- httr::POST(geocoder_url, body = params, encode = "form")
+
+    # Extract content
+    response <- httr::content(request, "parsed", "application/json")
+    if (!is.null(response$error)) stop(response$error$message)
+
+    address[[i]] <- response$address$Match_addr
+
+    Sys.sleep(sleep)
+  }
 
   # Final result
-  results <- data.frame(
-    address = response$address$Match_addr,
-    latitude = latitude,
-    longitude = longitude
-  )
+  results <- data.frame(address, latitude, longitude)
   return(results)
 }
 
@@ -253,8 +255,7 @@ reverse_geocode <- function(latitude, longitude, intersection = F,
 #'   .htm}{Geographic} coordinate system documentation pages for a full list of
 #'   valid WKIDs.
 #'
-#' @return a \code{data.frame} of all address candidates and respective lat/long
-#'   coordinates and address matching scores
+#' @return A dataframe of identified address candidates
 #'
 #' @examples
 #' find_address_candidates("1500 Marilla St", max_locs = 1)
@@ -264,62 +265,63 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
   max_locs = NULL, server = c("DallasStreetsLocator", "ParcelLocator",
   "AccountPointsLocator", "AccountpointsStreetLocator"), out_sr = 4326)
 {
-  # Input validation
-  if (any(length(street) > 1, length(city) > 1, length(zip) > 1)) {
-    stop(paste("Function 'find_address_candidates' can only process one ",
-               "address at a time. All arguments must be of length 1."))
-  }
+  sleep <- 1  # Time in seconds to wait between loops
+  n_addresses <- length(street)
 
-  if (is.null(street)) street <- ""
-  else street <- as.character(street)
+  street[is.na(street)] <- ""
 
-  if (is.null(city)) city <- ""
-  else city <- as.character(city)
+  if (is.null(city)) city <- rep("", n_addresses)
+  else city[is.na(city)] <- ""
 
-  if (is.null(zip)) zip <- ""
-  else zip <- as.numeric(zip)
-
-  if (is.null(max_locs)) max_locs <- ""
-  else max_locs <- paste0("&maxLocations=", max_locs)
+  if (is.null(zip)) zip <- rep("", n_addresses)
+  else zip[is.na(zip)] <- ""
 
   server <- match.arg(server)
 
-  # Submit request
-  geocoder_url <- paste(.base_url, server, "GeocodeServer",
-                        "findAddressCandidates", sep = "/")
-  post_url <- gsub(" ", "%20",
-                   paste0(geocoder_url,
-                          "?Street=", street,
-                          "&City=", city,
-                          "&ZIP=", zip,
-                          "&outSR=", out_sr,
-                          max_locs,
-                          "&f=json"))
-  request <- httr::POST(url = post_url)
+  # Main function loop
+  geocoder_url <- paste(.base_url, server, "GeocodeServer", "reverseGeocode",
+                        sep = "/")
+  addresses <- list()
 
-  # Extract content
-  response <- httr::content(request, "parsed", "application/json")
-  if (!is.null(response$error)) stop(response$error$message)
+  for (i in 1:n_addresses) {
 
-  candidates <- response$candidates
+    # Submit request
+    params <- list(
+      SingleLine = paste(street[[i]], city[[i]], zip[[i]], sep = ", "),
+      outSR = out_sr,
+      f = "json"
+    )
+    if (!is.null(max_locs)) params <- c(params, maxLocations = max_locs)
 
-  n_candidates <- length(candidates)
-  candidate <- numeric(n_candidates)
-  address <- character(n_candidates)
-  latitude <- numeric(n_candidates)
-  longitude <- numeric(n_candidates)
-  score <- numeric(n_candidates)
+    request <- httr::POST(geocoder_url, body = params, encode = "form")
 
-  for (i in 1:n_candidates) {
-    candidate[i] <- i
-    address[i] <- candidates[[i]]$address
-    latitude[i] <- candidates[[i]]$location$y
-    longitude[i] <- candidates[[i]]$location$x
-    score[i] <- candidates[[i]]$score
+    # Extract content
+    response <- httr::content(request, "parsed", "application/json")
+    if (!is.null(response$error)) stop(response$error$message)
+
+    candidates <- response$candidates
+    n_candidates <- length(candidates)
+
+    candidate <- numeric(n_candidates)
+    address <- character(n_candidates)
+    latitude <- numeric(n_candidates)
+    longitude <- numeric(n_candidates)
+    score <- numeric(n_candidates)
+
+    for (j in 1:n_candidates) {
+      candidate[j] <- j
+      address[j] <- candidates[[j]]$address
+      latitude[j] <- candidates[[j]]$location$y
+      longitude[j] <- candidates[[j]]$location$x
+      score[j] <- candidates[[j]]$score
+    }
+
+    # Convert nested list attributes into dataframe
+    addresses[[i]] <- data.frame(candidate, address, latitude, longitude,
+                                       score)
+    Sys.sleep(sleep)
   }
-
-  # Convert nested list attributes into dataframe
-  results <- data.frame(candidate, address, latitude, longitude, score)
+  results <- rbind.data.frame(addresses)
 
   return(results)
 }

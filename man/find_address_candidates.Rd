@@ -39,8 +39,7 @@ arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
 valid WKIDs.}
 }
 \value{
-a \code{data.frame} of all address candidates and respective lat/long
-coordinates and address matching scores
+A dataframe of identified address candidates
 }
 \description{
 Generate a list of probable City of Dallas addresses for a given address

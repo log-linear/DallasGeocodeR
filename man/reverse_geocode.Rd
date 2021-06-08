@@ -4,27 +4,15 @@
 \alias{reverse_geocode}
 \title{Convert lat/long coordinates to City of Dallas addresses}
 \usage{
-reverse_geocode(
-  latitude,
-  longitude,
-  intersection = F,
-  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-    "AccountpointsStreetLocator"),
-  sr = 4326
-)
+reverse_geocode(latitude, longitude, intersection = F, sr = 4326)
 }
 \arguments{
 \item{latitude}{scalar, latitude coordinate to reverse geocode}
 
 \item{longitude}{scalar, longitude coordinate to reverse geocode}
 
-\item{intersection}{logical boolean value specifying whether the
-geocode service should return the nearest street intersection or the
-nearest address to the given point. Default is FALSE.}
-
-\item{server}{GeocodeServer to use. Defaults to DallasStreetsLocator.
-Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
-ToolServices}{ToolServices} API directory for details on each server.}
+\item{intersection}{boolean value specifying whether the geocode service
+should return the nearest street intersection or the nearest address.}
 
 \item{sr}{Spatial Reference ID (WKID) for the provided lat/long
 coordinate system. Defaults to 4326, which corresponds to
@@ -38,15 +26,13 @@ arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
 valid WKIDs.}
 }
 \value{
-A single row \code{data.frame} of the reverse-geocoded address with
-columns \code{street}, \code{city}, and \code{zip}
+A dataframe containingt the reverse-geocoded address
 }
 \description{
 Convert lat/long coordinates to City of Dallas addresses using the
 City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
-reverseGeocode service}. Note that this service can only convert a single
-set of coordinates per function call. See ArcGIS's
+reverseGeocode service}. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
 geocoding-reverse-geocode.htm}{documentation page} for
 additional details.

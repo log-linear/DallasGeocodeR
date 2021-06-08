@@ -53,8 +53,7 @@ A dataframe or list of geocoded address results.
 Calculate lat/long coordinates for a given set of addresses using the
 City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
-geocodeAddresses service}. Note that this service can geocode a
-\strong{maximum 1000 addresses} per function call. See ArcGIS's
+geocodeAddresses service}. See ArcGIS's
 \href{https://developers.arcgis.com/rest/geocode/api-reference/
 geocoding-geocode-addresses.htm}{documentation page} for additional details.
 }

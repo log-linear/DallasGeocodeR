@@ -19,5 +19,7 @@ Imports:
     rjson
 Suggests: 
     rmarkdown,
-    knitr
+    knitr,
+    ggplot2,
+    esri2sf
 VignetteBuilder: knitr
