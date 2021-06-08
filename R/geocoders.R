@@ -231,8 +231,7 @@ reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
 #' Generate a list of probable City of Dallas addresses for a given address
 #' using the City of Dallas's public \href{https://gis.dallascityhall.com/
 #' wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer/
-#' findAddressCandidates}{findAddressCandidates}. Note that this operation can
-#' only process one address per function call. See ArcGIS's
+#' findAddressCandidates}{findAddressCandidates}. See ArcGIS's
 #' \href{https://developers.arcgis.com/rest/geocode/api-reference/
 #' geocoding-find-address-candidates.htm}{documentation page} for additional
 #' details on this service.
@@ -279,15 +278,17 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
   server <- match.arg(server)
 
   # Main function loop
-  geocoder_url <- paste(.base_url, server, "GeocodeServer", "reverseGeocode",
-                        sep = "/")
+  geocoder_url <- paste(.base_url, server, "GeocodeServer",
+                        "findAddressCandidates", sep = "/")
   addresses <- list()
 
   for (i in 1:n_addresses) {
 
     # Submit request
     params <- list(
-      SingleLine = paste(street[[i]], city[[i]], zip[[i]], sep = ", "),
+      Street = street[[i]],
+      City = city[[i]],
+      ZIP = zip[[i]],
       outSR = out_sr,
       f = "json"
     )
@@ -301,6 +302,7 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
 
     candidates <- response$candidates
     n_candidates <- length(candidates)
+    if (n_candidates == 0) stop("No address candidates found.")
 
     candidate <- numeric(n_candidates)
     address <- character(n_candidates)
@@ -318,10 +320,10 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
 
     # Convert nested list attributes into dataframe
     addresses[[i]] <- data.frame(candidate, address, latitude, longitude,
-                                       score)
+                                 score)
     Sys.sleep(sleep)
   }
-  results <- rbind.data.frame(addresses)
+  results <- data.frame(do.call(rbind.data.frame, addresses))
 
   return(results)
 }

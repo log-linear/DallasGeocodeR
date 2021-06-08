@@ -41,8 +41,8 @@ test090 <- reverse_geocode(test01$latitude, test01$longitude, intersection = T)
 # find_address_candidates
 #-------------------------------------------------------------------------------
 test13 <- find_address_candidates(addresses$street, addresses$city, addresses$zip)
-test14 <- find_address_candidates(addresses$street[[1]], max_locs = 1)
-test15 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "ParcelLocator")
-test16 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "AccountPointsLocator")
-test17 <- find_address_candidates(addresses$street[[1]], max_locs = 1, server = "AccountpointsStreetLocator")
+test14 <- find_address_candidates(addresses$street, max_locs = 1)
+test15 <- find_address_candidates(addresses$street, server = "ParcelLocator")
+test16 <- find_address_candidates(addresses$street, server = "AccountPointsLocator")
+test17 <- find_address_candidates(addresses$street, server = "AccountpointsStreetLocator")
 
