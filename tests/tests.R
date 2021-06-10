@@ -7,7 +7,7 @@ devtools::load_all()
 addresses <- data.frame(
   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
   city = c('Dallas', 'Dallas', 'Dallas'),
-  zip = c('75218', '75201', '75210')
+  zip = c(75218, 75201, 75210)
 )
 
 #-------------------------------------------------------------------------------

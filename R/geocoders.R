@@ -4,36 +4,32 @@
 
 #' Convert City of Dallas addresses to lat/long coordinates
 #'
-#' Calculate lat/long coordinates for a given set of addresses using the
-#' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
-#' services/ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
-#' geocodeAddresses service}. See ArcGIS's
-#' \href{https://developers.arcgis.com/rest/geocode/api-reference/
-#' geocoding-geocode-addresses.htm}{documentation page} for additional details.
+#' Find lat/long coordinates for a given set of addresses using the City of
+#' Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+#' ToolServices/DallasStreetsLocator/GeocodeServer/geocodeAddresses}{
+#' geocodeAddresses service}. See ArcGIS's \href{https://developers.arcgis.com/
+#' rest/geocode/api-reference/geocoding-geocode-addresses.htm}{documentation
+#' page} for additional details.
 #'
 #' @param street character vector of street addresses to geocode.
 #' @param city optional, character vector of city names to geocode.
-#' @param zip optional, character vector of postal codes to geocode.
-#' @param id optional, numeric vector uniquely identifying each address, If
-#'   providing this argument (e.g., to join onto an existing dataframe), note
-#'   that each integer must be unique.
+#' @param zip optional, vector of postal codes to geocode.
+#' @param id optional, numeric vector uniquely identifying each address.
+#'   providing this argument note that each integer \emph{must} be unique.
 #' @param server GeocodeServer to use. Defaults to DallasStreetsLocator.
 #'   Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 #'   ToolServices}{ToolServices} API directory for details on each server.
 #' @param out_sr Spatial Reference ID (WKID) for the desired lat/long
-#'   coordinate system. Defaults to 4326, which corresponds to
-#'   \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
-#'   will be used with the City of Dallas's MapServers, you may wish to set this
-#'   to 2276, the default WKID for many Dallas services. Refer to the
-#'   \href{https://developers.arcgis.com/rest/services-reference/enterprise/
-#'   projected-coordinate-systems.htm}{Projected} and \href{https://developers.
-#'   arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
-#'   .htm}{Geographic} coordinate system documentation pages for a full list of
-#'   valid WKIDs.
-#' @param output Function output. If \code{latlong} (default), function will
-#'   return a dataframe of lat/long coordinates, addresses, and a few other
-#'   fields. If \code{all}, will return a list corresponding to the full JSON
-#'   response from the server.
+#'   coordinate system. Defaults to 4326 (WGS84). If using with one of the City
+#'   of Dallas's MapServers, you may wish to set this to 2276, the default WKID
+#'   for many Dallas services. Refer to ArcGIS's \href{https://developers.arcgis
+#'   .com/rest/services-reference/enterprise/projected-coordinate-systems.htm}{
+#'   Projected} and \href{https://developers.arcgis.com/rest/services-reference/
+#'   enterprise/geographic-coordinate-systems.htm}{Geographic} coordinate system
+#'   documentation pages for a full list of valid WKIDs.
+#' @param output output of this function. If \code{latlong} (default), will
+#'   return a dataframe of lat/long coordinates and addresses. If \code{all},
+#'   will return the full JSON response from the server as a list.
 #'
 #' @return A dataframe or list of geocoded address results.
 #'
@@ -41,16 +37,17 @@
 #' addresses <- data.frame(
 #'   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
 #'   city = c('Dallas', 'Dallas', 'Dallas'),
-#'   zip = c('75218', '75201', '75210')
+#'   zip = c(75218, 75201, 75210)
 #' )
-#'
 #' geocode_addresses(addresses$street, addresses$city, addresses$zip)
+#'
 #' geocode_addresses(addresses$street)
 #'
 #' @export
-geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
-  server = c("DallasStreetsLocator", "ParcelLocator", "AccountPointsLocator",
-  "AccountpointsStreetLocator"), out_sr = 4326, output = c("latlong", "all"))
+geocode_addresses <- function(street, city = NULL, zip = NULL, id =
+  seq_along(street), server = c("DallasStreetsLocator", "ParcelLocator",
+  "AccountPointsLocator", "AccountpointsStreetLocator"), out_sr = 4326,
+  output = c("latlong", "all"))
 {
   sleep <- 1  # Time in seconds to wait between loops
   n_addresses <- length(street)
@@ -62,7 +59,10 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
   else city[is.na(city)] <- ""
 
   if (is.null(zip)) zip <- rep("", n_addresses)
-  else zip[is.na(zip)] <- ""
+  else {
+    zip <- as.character(zip)
+    zip[is.na(zip)] <- ""
+  }
 
   id <- as.numeric(id)
   server <- match.arg(server)
@@ -83,7 +83,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
   # Main function loop
   geocoder_url <- paste(.base_url, server, "GeocodeServer", "geocodeAddresses",
                         sep = "/")
-  batches <- split(id, ceiling(seq(id) / 1000))
+  batches <- split(id, ceiling(seq_along(id) / 1000))
   batch_cnt <- 1
 
   for (batch in batches) {
@@ -93,7 +93,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 
     # Create JSON payload
     nested_list <- list(
-      records = lapply(seq(batch),
+      records = lapply(seq_along(batch),
                        function(i) list(attributes = list(OBJECTID = batch[[i]],
                                                           Street = street[[i]],
                                                           City = city[[i]],
@@ -148,27 +148,25 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 #' Convert lat/long coordinates to City of Dallas addresses using the
 #' City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 #' services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
-#' reverseGeocode service}. See ArcGIS's
-#' \href{https://developers.arcgis.com/rest/geocode/api-reference/
-#' geocoding-reverse-geocode.htm}{documentation page} for
-#' additional details.
+#' reverseGeocode service}. See ArcGIS's \href{https://developers.arcgis.com/
+#' rest/geocode/api-reference/geocoding-reverse-geocode.htm}{documentation page}
+#' for additional details.
 #'
-#' @param latitude scalar, latitude coordinate to reverse geocode
-#' @param longitude scalar, longitude coordinate to reverse geocode
+#' @param latitude numeric vector of latitude coordinate to reverse geocode
+#' @param longitude numeric vector of longitude coordinate to reverse geocode
 #' @param intersection boolean value specifying whether the geocode service
 #'   should return the nearest street intersection or the nearest address.
-#' @param sr Spatial Reference ID (WKID) for the provided lat/long
-#'   coordinate system. Defaults to 4326, which corresponds to
-#'   \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the addresses
-#'   will be used with the City of Dallas's MapServers, you may wish to set this
-#'   to 2276, the default WKID for many Dallas services. Refer to the
+#' @param out_sr Spatial Reference ID (WKID) for the given lat/long
+#'   coordinate system. Defaults to 4326, which corresponds to WGS84. If using
+#'   with one of the City of Dallas's MapServers, you may wish to set this to
+#'   2276, the default WKID for many Dallas services. Refer to ArcGIS's
 #'   \href{https://developers.arcgis.com/rest/services-reference/enterprise/
 #'   projected-coordinate-systems.htm}{Projected} and \href{https://developers.
 #'   arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
 #'   .htm}{Geographic} coordinate system documentation pages for a full list of
 #'   valid WKIDs.
 #'
-#' @return A dataframe containingt the reverse-geocoded address
+#' @return A dataframe containing the reverse-geocoded address
 #'
 #' @examples
 #' reverse_geocode(32.8217, -96.7163)
@@ -176,9 +174,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id = seq(street),
 #' addresses <- data.frame(
 #'   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
 #'   city = c('Dallas', 'Dallas', 'Dallas'),
-#'   zip = c('75218', '75201', '75210')
-#' )
-#'
+#'   zip = c(75218, 75201, 75210)
+#' ) #'
 #' coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
 #' reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 #'
@@ -228,35 +225,39 @@ reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
 
 #' Find address candidates for City of Dallas addresses
 #'
-#' Generate a list of probable City of Dallas addresses for a given address
-#' using the City of Dallas's public \href{https://gis.dallascityhall.com/
-#' wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer/
-#' findAddressCandidates}{findAddressCandidates}. See ArcGIS's
-#' \href{https://developers.arcgis.com/rest/geocode/api-reference/
-#' geocoding-find-address-candidates.htm}{documentation page} for additional
-#' details on this service.
+#' Find probable City of Dallas addresses for a given address using the City of
+#' Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+#' ToolServices/DallasStreetsLocator/GeocodeServer/findAddressCandidates}{
+#' findAddressCandidates service}. See ArcGIS's \href{https://developers.arcgis
+#' .com/rest/geocode/api-reference/geocoding-find-address-candidates.htm}{
+#' documentation page} for additional details on this service.
 #'
-#' @param street street address to match against
-#' @param city optional, city to match against
-#' @param zip optional, postal code to match against
+#' @param street character vector of street addresses to match against
+#' @param city optional, character vector of city names to match against
+#' @param zip optional, vector of postal codes to match against
 #' @param max_locs optional, maximum number of address candidates to return
 #' @param server GeocodeServer to use. Defaults to DallasStreetsLocator.
 #'   Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 #'   ToolServices}{ToolServices} API directory for details on each server.
 #' @param out_sr Spatial Reference ID (WKID) for the desired lat/long
-#'   coordinate system. Defaults to 4326, which corresponds to
-#'   \href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
-#'   will be used with the City of Dallas's MapServers, you may wish to set this
-#'   to 2276, the default WKID for many Dallas services. Refer to the
-#'   \href{https://developers.arcgis.com/rest/services-reference/enterprise/
-#'   projected-coordinate-systems.htm}{Projected} and \href{https://developers.
-#'   arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
-#'   .htm}{Geographic} coordinate system documentation pages for a full list of
-#'   valid WKIDs.
+#'   coordinate system. Defaults to 4326 (WGS84). If using with one of the City
+#'   of Dallas's MapServers, you may wish to set this to 2276, the default WKID
+#'   for many Dallas services. Refer to ArcGIS's \href{https://developers.arcgis
+#'   .com/rest/services-reference/enterprise/projected-coordinate-systems.htm}{
+#'   Projected} and \href{https://developers.arcgis.com/rest/services-reference/
+#'   enterprise/geographic-coordinate-systems.htm}{Geographic} coordinate system
+#'   documentation pages for a full list of valid WKIDs.
 #'
-#' @return A dataframe of identified address candidates
+#' @return A dataframe of address candidates
 #'
 #' @examples
+#' addresses <- data.frame(
+#'   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
+#'   city = c('Dallas', 'Dallas', 'Dallas'),
+#'   zip = c(75218, 75201, 75210)
+#' )
+#' find_address_candidates(addresses$street, addresses$city, addresses$zip)
+#'
 #' find_address_candidates("1500 Marilla St", max_locs = 1)
 #'
 #' @export

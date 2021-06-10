@@ -7,18 +7,17 @@
 reverse_geocode(latitude, longitude, intersection = F, sr = 4326)
 }
 \arguments{
-\item{latitude}{scalar, latitude coordinate to reverse geocode}
+\item{latitude}{numeric vector of latitude coordinate to reverse geocode}
 
-\item{longitude}{scalar, longitude coordinate to reverse geocode}
+\item{longitude}{numeric vector of longitude coordinate to reverse geocode}
 
 \item{intersection}{boolean value specifying whether the geocode service
 should return the nearest street intersection or the nearest address.}
 
-\item{sr}{Spatial Reference ID (WKID) for the provided lat/long
-coordinate system. Defaults to 4326, which corresponds to
-\href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the addresses
-will be used with the City of Dallas's MapServers, you may wish to set this
-to 2276, the default WKID for many Dallas services. Refer to the
+\item{out_sr}{Spatial Reference ID (WKID) for the given lat/long
+coordinate system. Defaults to 4326, which corresponds to WGS84. If using
+with one of the City of Dallas's MapServers, you may wish to set this to
+2276, the default WKID for many Dallas services. Refer to ArcGIS's
 \href{https://developers.arcgis.com/rest/services-reference/enterprise/
 projected-coordinate-systems.htm}{Projected} and \href{https://developers.
 arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
@@ -26,16 +25,15 @@ arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
 valid WKIDs.}
 }
 \value{
-A dataframe containingt the reverse-geocoded address
+A dataframe containing the reverse-geocoded address
 }
 \description{
 Convert lat/long coordinates to City of Dallas addresses using the
 City of Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/
 services/ToolServices/DallasStreetsLocator/GeocodeServer/reverseGeocode}{
-reverseGeocode service}. See ArcGIS's
-\href{https://developers.arcgis.com/rest/geocode/api-reference/
-geocoding-reverse-geocode.htm}{documentation page} for
-additional details.
+reverseGeocode service}. See ArcGIS's \href{https://developers.arcgis.com/
+rest/geocode/api-reference/geocoding-reverse-geocode.htm}{documentation page}
+for additional details.
 }
 \examples{
 reverse_geocode(32.8217, -96.7163)
@@ -43,9 +41,8 @@ reverse_geocode(32.8217, -96.7163)
 addresses <- data.frame(
   street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
   city = c('Dallas', 'Dallas', 'Dallas'),
-  zip = c('75218', '75201', '75210')
-)
-
+  zip = c(75218, 75201, 75210)
+) #'
 coords <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
 reverse_geocode(coords$latitude[[2]], coords$longitude[[2]]
 

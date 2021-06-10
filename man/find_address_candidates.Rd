@@ -15,11 +15,11 @@ find_address_candidates(
 )
 }
 \arguments{
-\item{street}{street address to match against}
+\item{street}{character vector of street addresses to match against}
 
-\item{city}{optional, city to match against}
+\item{city}{optional, character vector of city names to match against}
 
-\item{zip}{optional, postal code to match against}
+\item{zip}{optional, vector of postal codes to match against}
 
 \item{max_locs}{optional, maximum number of address candidates to return}
 
@@ -28,30 +28,33 @@ Refer to the \href{https://gis.dallascityhall.com/wwwgis/rest/services/
 ToolServices}{ToolServices} API directory for details on each server.}
 
 \item{out_sr}{Spatial Reference ID (WKID) for the desired lat/long
-coordinate system. Defaults to 4326, which corresponds to
-\href{https://wiki.gis.com/wiki/index.php/WGS84}{WGS84}. If the coordinates
-will be used with the City of Dallas's MapServers, you may wish to set this
-to 2276, the default WKID for many Dallas services. Refer to the
-\href{https://developers.arcgis.com/rest/services-reference/enterprise/
-projected-coordinate-systems.htm}{Projected} and \href{https://developers.
-arcgis.com/rest/services-reference/enterprise/geographic-coordinate-systems
-.htm}{Geographic} coordinate system documentation pages for a full list of
-valid WKIDs.}
+coordinate system. Defaults to 4326 (WGS84). If using with one of the City
+of Dallas's MapServers, you may wish to set this to 2276, the default WKID
+for many Dallas services. Refer to ArcGIS's \href{https://developers.arcgis
+.com/rest/services-reference/enterprise/projected-coordinate-systems.htm}{
+Projected} and \href{https://developers.arcgis.com/rest/services-reference/
+enterprise/geographic-coordinate-systems.htm}{Geographic} coordinate system
+documentation pages for a full list of valid WKIDs.}
 }
 \value{
-A dataframe of identified address candidates
+A dataframe of address candidates
 }
 \description{
-Generate a list of probable City of Dallas addresses for a given address
-using the City of Dallas's public \href{https://gis.dallascityhall.com/
-wwwgis/rest/services/ToolServices/DallasStreetsLocator/GeocodeServer/
-findAddressCandidates}{findAddressCandidates}. Note that this operation can
-only process one address per function call. See ArcGIS's
-\href{https://developers.arcgis.com/rest/geocode/api-reference/
-geocoding-find-address-candidates.htm}{documentation page} for additional
-details on this service.
+Find probable City of Dallas addresses for a given address using the City of
+Dallas's public \href{https://gis.dallascityhall.com/wwwgis/rest/services/
+ToolServices/DallasStreetsLocator/GeocodeServer/findAddressCandidates}{
+findAddressCandidates service}. See ArcGIS's \href{https://developers.arcgis
+.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm}{
+documentation page} for additional details on this service.
 }
 \examples{
+addresses <- data.frame(
+  street = c('8525 Garland Rd', '1500 Marilla St', '3809 Grand Avenue'),
+  city = c('Dallas', 'Dallas', 'Dallas'),
+  zip = c(75218, 75201, 75210)
+)
+find_address_candidates(addresses$street, addresses$city, addresses$zip)
+
 find_address_candidates("1500 Marilla St", max_locs = 1)
 
 }
