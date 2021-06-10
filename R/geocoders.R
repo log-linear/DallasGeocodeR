@@ -68,33 +68,20 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
   server <- match.arg(server)
   output <- match.arg(output)
 
-  # Pre-allocate function output variables
-  if (output == "latlong") {
-    object_id <- numeric(n_addresses)
-    latitude <- numeric(n_addresses)
-    longitude <- numeric(n_addresses)
-    score <- numeric(n_addresses)
-    status <- character(n_addresses)
-    address <- character(n_addresses)
-    address_type <- character(n_addresses)
-  }
-  else if (output == "all") results <- list()
-
   # Main function loop
+  results <- list()
   geocoder_url <- paste(.base_url, server, "GeocodeServer", "geocodeAddresses",
                         sep = "/")
-  batches <- split(id, ceiling(seq_along(id) / 1000))
+  batches <- split(seq_along(id), ceiling(seq_along(id) / 1000))
   batch_cnt <- 1
 
-  for (batch in batches) {
+  for (indices in batches) {
     print(paste("Processing batch", batch_cnt, "of", length(batches)))
-
-    batch_size <- length(batch)
 
     # Create JSON payload
     nested_list <- list(
-      records = lapply(seq_along(batch),
-                       function(i) list(attributes = list(OBJECTID = batch[[i]],
+      records = lapply(indices,
+                       function(i) list(attributes = list(OBJECTID = id[[i]],
                                                           Street = street[[i]],
                                                           City = city[[i]],
                                                           ZIP = zip[[i]])))
@@ -113,30 +100,38 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
     response <- httr::content(request, "parsed", "application/json")
     if (!is.null(response$error)) stop(response$error$message)
 
-    if (output == "latlong") {
-      locations <- response$locations
-
-      for (i in 1:batch_size) {
-        idx <- batch[[i]]
-
-        object_id[idx] <- idx
-        latitude[idx] <- locations[[i]]$location$y
-        longitude[idx] <- locations[[i]]$location$x
-        score[idx] <- locations[[i]]$attributes$Score
-        status[idx] <- locations[[i]]$attributes$Status
-        address[idx] <- locations[[i]]$address
-        address_type[idx] <- locations[[i]]$attributes$Addr_type
-      }
-
-    }
-    else if (output == "all") results[[batch_cnt]] <- response
+    results[[batch_cnt]] <- response
 
     Sys.sleep(sleep)
     batch_cnt <- batch_cnt + 1
   }
 
   if (output == "latlong") {
-    results <- data.frame(id = object_id, latitude, longitude, score,
+    # Pre-allocate function output variables
+    latitude <- numeric(n_addresses)
+    longitude <- numeric(n_addresses)
+    score <- numeric(n_addresses)
+    status <- character(n_addresses)
+    address <- character(n_addresses)
+    address_type <- character(n_addresses)
+
+    idx <- 1
+    for (i in seq_along(results)) {
+      locations <- results[[i]]$locations
+
+      for (j in seq_along(locations)) {
+        latitude[idx] <- locations[[j]]$location$y
+        longitude[idx] <- locations[[j]]$location$x
+        score[idx] <- locations[[j]]$attributes$Score
+        status[idx] <- locations[[j]]$attributes$Status
+        address[idx] <- locations[[j]]$address
+        address_type[idx] <- locations[[j]]$attributes$Addr_type
+
+        idx <-  idx + 1
+      }
+    }
+
+    results <- data.frame(street, city, zip, id, latitude, longitude, score,
                           status, address, address_type)
   }
 

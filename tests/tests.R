@@ -14,6 +14,13 @@ addresses <- data.frame(
 # geocode_addresses
 #-------------------------------------------------------------------------------
 test01 <- geocode_addresses(addresses$street, addresses$city, addresses$zip)
+
+# Test with id parameter
+set.seed(5555)
+ids <- sample(c(1:9999, sample(1:9999, 999, replace = F)), nrow(addresses))
+test0101 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, id = ids)
+
+# Test other servers
 test010 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, output = "all")
 test02 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "ParcelLocator")
 test03 <- geocode_addresses(addresses$street, addresses$city, addresses$zip, server = "AccountPointsLocator")
@@ -28,7 +35,10 @@ test08 <- geocode_addresses(addresses$street, server = "AccountpointsStreetLocat
 
 # Test for > 1000 addresses
 # addresses <- read.csv("test_addresses.csv")
-# test080 <- geocode_addresses(addresses$Address)
+# addresses <- addresses[1:2500,]
+# addresses$ids <- sample(c(1:9999, sample(1:9999, 999, replace = F)), nrow(addresses))
+# test080 <- geocode_addresses(addresses$Address, id = addresses$ids)
+
 #-------------------------------------------------------------------------------
 # reverse_geocode
 #-------------------------------------------------------------------------------
