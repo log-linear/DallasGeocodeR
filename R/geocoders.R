@@ -2,6 +2,8 @@
 # Geocoder Service URL
 .base_url <- "https://gis.dallascityhall.com/wwwgis/rest/services/ToolServices"
 
+.sleep <- 1  # Time in seconds to wait between loops
+
 #' Convert City of Dallas addresses to lat/long coordinates
 #'
 #' Find lat/long coordinates for a given set of addresses using the City of
@@ -49,7 +51,6 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
   "AccountPointsLocator", "AccountpointsStreetLocator"), out_sr = 4326,
   output = c("latlong", "all"))
 {
-  sleep <- 1  # Time in seconds to wait between loops
   n_addresses <- length(street)
 
   # Input validation
@@ -72,15 +73,16 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
   results <- list()
   geocoder_url <- paste(.base_url, server, "GeocodeServer", "geocodeAddresses",
                         sep = "/")
-  batches <- split(seq_along(id), ceiling(seq_along(id) / 1000))
+  indices <- seq_along(id)
+  batches <- split(indices, ceiling(indices / 1000))
   batch_cnt <- 1
 
-  for (indices in batches) {
+  for (batch in batches) {
     print(paste("Processing batch", batch_cnt, "of", length(batches)))
 
     # Create JSON payload
     nested_list <- list(
-      records = lapply(indices,
+      records = lapply(batch,
                        function(i) list(attributes = list(OBJECTID = id[[i]],
                                                           Street = street[[i]],
                                                           City = city[[i]],
@@ -102,7 +104,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
 
     results[[batch_cnt]] <- response
 
-    Sys.sleep(sleep)
+    Sys.sleep(.sleep)
     batch_cnt <- batch_cnt + 1
   }
 
@@ -176,7 +178,6 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
 #'
 #' @export
 reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
-  sleep <- 1  # Time in seconds to wait between loops
 
   # Input validation
   latitude <- as.numeric(latitude)
@@ -210,7 +211,7 @@ reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
 
     address[[i]] <- response$address$Match_addr
 
-    Sys.sleep(sleep)
+    Sys.sleep(.sleep)
   }
 
   # Final result
@@ -260,7 +261,6 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
   max_locs = NULL, server = c("DallasStreetsLocator", "ParcelLocator",
   "AccountPointsLocator", "AccountpointsStreetLocator"), out_sr = 4326)
 {
-  sleep <- 1  # Time in seconds to wait between loops
   n_addresses <- length(street)
 
   street[is.na(street)] <- ""
@@ -317,7 +317,7 @@ find_address_candidates <- function(street, city = NULL, zip = NULL,
     # Convert nested list attributes into dataframe
     addresses[[i]] <- data.frame(candidate, address, latitude, longitude,
                                  score)
-    Sys.sleep(sleep)
+    Sys.sleep(.sleep)
   }
   results <- data.frame(do.call(rbind.data.frame, addresses))
 
