@@ -122,14 +122,8 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
       locations <- results[[i]]$locations
 
       for (j in seq_along(locations)) {
-        # Handle unprocessed addresses
-        lat <- ifelse(locations[[j]]$location$y == "NaN", NA,
-                      locations[[j]]$location$y)
-        lon <- ifelse(locations[[j]]$location$x == "NaN", NA,
-                      locations[[j]]$location$x)
-
-        latitude[idx] <- lat
-        longitude[idx] <- lon
+        latitude[idx] <- as.numeric(locations[[j]]$location$y)
+        longitude[idx] <- as.numeric(locations[[j]]$location$x)
         score[idx] <- locations[[j]]$attributes$Score
         status[idx] <- locations[[j]]$attributes$Status
         address[idx] <- locations[[j]]$address
