@@ -114,7 +114,7 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
     longitude <- numeric(n_addresses)
     score <- numeric(n_addresses)
     status <- character(n_addresses)
-    address <- character(n_addresses)
+    matched_address <- character(n_addresses)
     address_type <- character(n_addresses)
 
     idx <- 1
@@ -126,15 +126,15 @@ geocode_addresses <- function(street, city = NULL, zip = NULL, id =
         longitude[idx] <- as.numeric(locations[[j]]$location$x)
         score[idx] <- locations[[j]]$attributes$Score
         status[idx] <- locations[[j]]$attributes$Status
-        address[idx] <- locations[[j]]$address
+        matched_address[idx] <- locations[[j]]$address
         address_type[idx] <- locations[[j]]$attributes$Addr_type
 
         idx <-  idx + 1
       }
     }
 
-    results <- data.frame(street, city, zip, id, latitude, longitude, score,
-                          status, address, address_type)
+    results <- data.frame(id, latitude, longitude, score, status,
+                          matched_address, address_type)
   }
 
   return(results)
@@ -207,9 +207,11 @@ reverse_geocode <- function(latitude, longitude, intersection = F, sr = 4326) {
 
     # Extract content
     response <- httr::content(request, "parsed", "application/json")
-    if (!is.null(response$error)) stop(response$error$message)
 
-    address[[i]] <- response$address$Match_addr
+    tryCatch(
+      address[[i]] <- response$address$Match_addr,
+      error = function(cond) address[[i]] <- NA
+    )
 
     Sys.sleep(.sleep)
   }
